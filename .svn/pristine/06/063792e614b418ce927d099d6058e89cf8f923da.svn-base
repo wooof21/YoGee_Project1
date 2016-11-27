@@ -1,0 +1,559 @@
+package com.youge.jobfinder.activity;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+import model.ActivityModel;
+import model.GrabOrderModel;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import popup.LabelPopUpWindow;
+import popup.LabelXsPopUpWindow;
+import popup.LabelZnPopUpWindow;
+import progressdialog.CustomProgressDialog;
+import tools.Config;
+import tools.HttpClient;
+import tools.PullToRefreshLayout;
+import tools.PullToRefreshLayout.OnRefreshListener;
+import tools.Tools;
+import view.ListViewForLableGrad;
+import view.PullableScrollView;
+import view.ScrollListView;
+import adapter.MainGrabLvItemAdapter;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+public class LableGradActivity extends BaseActivity implements OnClickListener,
+		OnRefreshListener {
+	private ImageView back, biaoqian_iv1, sxIv1, znIv1;
+	private TextView title;
+	private FrameLayout lable_fl, fragment_fl1, fragment_fl2;
+	private MainGrabLvItemAdapter mAdapter;
+	private ListViewForLableGrad listView;
+	private ArrayList<GrabOrderModel> allData, signleData;
+	private CustomProgressDialog pd;
+	private LinearLayout parent, noOrder;
+	private String type = "0", method = "2", orderType = "2", timeout = "0",
+			onlinePay = "0", sort = "0", lat = "0", lng = "0", label = "0",
+			distance = "3", userid; // 筛选方式默认值
+	private int total = 0; // 分页起始
+	private int count = 5; // 分页结束//
+	private TextView biaoqian_tv, sxTv, znTv;
+	public static LableGradActivity instance;
+	private PullToRefreshLayout refresh;
+	private PullableScrollView sv;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_lable_grad);
+		findView();
+		initView();
+		getGrabListAsync(type, "f");
+	}
+
+	/**
+	 * 根据ID查找控件
+	 */
+	public void findView() {
+		back = (ImageView) findViewById(R.id.back);
+		title = (TextView) findViewById(R.id.title_title);
+		listView = (ListViewForLableGrad) findViewById(R.id.listView);
+		parent = (LinearLayout) findViewById(R.id.fragment_main_grab_parent);
+		noOrder = (LinearLayout) findViewById(R.id.main_no_order);
+		biaoqian_iv1 = (ImageView) findViewById(R.id.biaoqian_iv1);
+		biaoqian_tv = (TextView) findViewById(R.id.biaoqian_tv);
+		sxIv1 = (ImageView) findViewById(R.id.shaixuanfangshi_iv1);
+		znIv1 = (ImageView) findViewById(R.id.zhinengpaixu_iv1);
+		sxTv = (TextView) findViewById(R.id.shaixuanfangshi_tv);
+		znTv = (TextView) findViewById(R.id.zhinengpaixu_tv);
+		lable_fl = (FrameLayout) findViewById(R.id.main_center_lv_lable_fl1);
+		fragment_fl1 = (FrameLayout) findViewById(R.id.main_center_lv_fragment_fl1);
+		fragment_fl2 = (FrameLayout) findViewById(R.id.main_center_lv_fragment_fl2);
+		refresh = (PullToRefreshLayout) findViewById(R.id.refresh_view);
+		refresh.setOnRefreshListener(LableGradActivity.this);
+		sv = (PullableScrollView) findViewById(R.id.sv);
+		sv.smoothScrollTo(0, 0);
+	}
+
+	/**
+	 * 初始化页面
+	 */
+	public void initView() {
+		instance = this;
+		lat = getIntent().getStringExtra("lat");
+		if (lat == null) {
+			lat = "";
+		}
+		lng = getIntent().getStringExtra("lng");
+		if (lng == null) {
+			lng = "";
+		}
+		label = getIntent().getStringExtra("lable");
+		setLable(label);
+		if (!TextUtils.isEmpty(new Tools().getUserId(LableGradActivity.this))) {
+			userid = new Tools().getUserId(LableGradActivity.this);
+		} else {
+			userid = "0";
+		}
+
+		allData = new ArrayList<GrabOrderModel>();
+		mAdapter = new MainGrabLvItemAdapter(LableGradActivity.this, allData,
+				parent);
+		listView.setAdapter(mAdapter);
+		back.setOnClickListener(this);
+		lable_fl.setOnClickListener(this);
+		fragment_fl1.setOnClickListener(this);
+		fragment_fl2.setOnClickListener(this);
+	}
+
+	private Handler handler2 = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			ScrollListView.setListViewHeightBasedOnChildren(listView);
+		}
+
+	};
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.back:
+			finish();
+			break;
+		case R.id.main_center_lv_lable_fl1:
+			new LabelPopUpWindow(LableGradActivity.this, parent, label);
+			break;
+		case R.id.main_center_lv_fragment_fl1:
+			title.setText("筛选方式");
+			new LabelXsPopUpWindow(LableGradActivity.this, parent, method,
+					orderType, timeout, onlinePay, distance);
+			break;
+		case R.id.main_center_lv_fragment_fl2:
+			new LabelZnPopUpWindow(LableGradActivity.this, parent, sort);
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	/**
+	 * 处理筛选,智能传值handler
+	 */
+	public Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case 0: // 点击取消,还原背景颜色
+				setSxBg("grey");
+				break;
+			case 1: // 标签筛选
+				total = 0;
+				count = 10;
+				type = "0";
+				method = "2";
+				orderType = "2";
+				timeout = "0";
+				onlinePay = "0";
+				sort = "0";
+				distance = "3";
+				label = (String) msg.obj;
+				setLable(label);
+				setSxBg("grey");
+				setZnBg("grey");
+				getGrabListAsync(type, "f");
+				break;
+			case 2:
+				method = (String) msg.obj;
+				break;
+			case 3:
+				orderType = (String) msg.obj;
+				break;
+			case 4:
+				timeout = (String) msg.obj;
+				break;
+			case 5:
+				onlinePay = (String) msg.obj;
+				break;
+			case 6:
+				distance = (String) msg.obj;
+				break;
+			case 7:
+				total = 0;
+				count = 10;
+				sort = "0";
+				setSxBg("green");
+				setZnBg("grey");
+				type = "1";
+				znTv.setText("智能排序");
+				getGrabListAsync(type, "f");
+				break;
+			case 8:
+				sort = (String) msg.obj;
+				total = 0;
+				count = 10;
+				type = "2";
+				method = "2";
+				orderType = "2";
+				timeout = "0";
+				onlinePay = "0";
+				distance = "3";
+				setSxBg("grey");
+				setZnBg("green");
+				if (sort.equals("1")) {
+					znTv.setText("距离最近");
+					title.setText("距离最近");
+				} else if (sort.equals("2")) {
+					znTv.setText("出价最高");
+					title.setText("出价最高");
+				} else if (sort.equals("3")) {
+					znTv.setText("最新发布");
+					title.setText("最新发布");
+				} else if (sort.equals("4")) {
+					znTv.setText("正在拼单");
+					title.setText("正在拼单");
+				}
+				getGrabListAsync(type, "f");//
+				break;
+			case 101:
+				if (total == 0) {
+					refresh.refreshFinish(PullToRefreshLayout.SUCCEED);
+				} else {
+					refresh.loadmoreFinish(PullToRefreshLayout.SUCCEED);
+				}
+				break;
+			case 102:
+				if (total == 0) {
+					refresh.refreshFinish(PullToRefreshLayout.FAIL);
+				} else {
+					refresh.loadmoreFinish(PullToRefreshLayout.FAIL);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+
+	};
+
+	/**
+	 * 设置 筛选方式 背景颜色
+	 * 
+	 * @param color
+	 */
+	private void setSxBg(String color) {
+		if (color.equals("green")) {
+			sxIv1.setImageResource(R.drawable.shaixuanfangshi_green);
+			sxTv.setTextColor(Color.rgb(34, 181, 112));
+		} else {
+			sxIv1.setImageResource(R.drawable.shaixuanfangshi_grey);
+			sxTv.setTextColor(Color.rgb(10, 11, 19));
+		}
+	}
+
+	/**
+	 * 设置 智能排序 背景颜色
+	 * 
+	 * @param color
+	 */
+	private void setZnBg(String color) {
+		if (color.equals("green")) {
+			znIv1.setImageResource(R.drawable.zhinengpaixu_green);
+			znTv.setTextColor(Color.rgb(34, 181, 112));
+		} else {
+			znIv1.setImageResource(R.drawable.zhinengpaixu_grey);
+			znTv.setTextColor(Color.rgb(10, 11, 19));
+		}
+	}
+
+	public void setLable(String label) {
+		if ("1".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_zhu);
+			biaoqian_tv.setText("工作互助");
+			title.setText("工作互助");
+		} else if ("2".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_xiu);
+			biaoqian_tv.setText("维修配件");
+			title.setText("维修配件");
+		} else if ("3".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_zhi);
+			biaoqian_tv.setText("兼职求职");
+			title.setText("兼职求职");
+		} else if ("4".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_che);
+			biaoqian_tv.setText("顺风搭车");
+			title.setText("顺风搭车");
+		} else if ("5".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_song);
+			biaoqian_tv.setText("城市速递");
+			title.setText("城市速递");
+		} else if ("6".equals(label)) {
+			biaoqian_iv1.setImageResource(R.drawable.xs_jia);
+			biaoqian_tv.setText("家政服务");
+			title.setText("家政服务");
+		}
+	}
+
+	private void getGrabListAsync(final String type, final String refresh) {
+		SharedPreferences sharedPre = LableGradActivity.this
+				.getSharedPreferences("user", Context.MODE_PRIVATE);
+		if (!sharedPre.getBoolean("isFromSplash", false)) {
+			pd = CustomProgressDialog.createDialog(LableGradActivity.this);
+		}
+
+		JSONObject job = new JSONObject();
+		try {
+			job.put("type", type);
+			job.put("sort", sort);
+			job.put("method", method);
+			job.put("orderType", orderType);
+			job.put("timeOut", timeout);
+			job.put("onlinePay", onlinePay);
+			job.put("distance", distance);
+			job.put("lat", lat);
+			job.put("lng", lng);
+			job.put("userid", userid);
+			job.put("total", "" + total);
+			job.put("count", "" + count);
+			job.put("label", "" + label);
+			System.out.println("主页抢单提交数据Json " + "type=" + type + " ---> "
+					+ job.toString());
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(LableGradActivity.this, Config.MAIN_GRAB_URL, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							// TODO Auto-generated method stub
+							if (arg0 == 200) { // 成功
+								String str = new String(arg2);
+								System.out.println("主页抢单 " + "type=" + type
+										+ " ---> " + str);
+								try {
+									JSONObject jObject = new JSONObject(str);
+									String state = jObject.getString("state");
+									if (state.equals("success")) {
+										signleData = new ArrayList<GrabOrderModel>();
+										JSONObject data = jObject
+												.getJSONObject("data");
+										JSONArray list = data
+												.getJSONArray("list");
+										if (list.length() == 0 && total != 0) {
+											Toast.makeText(
+													LableGradActivity.this,
+													"只有这么多了~",
+													Toast.LENGTH_SHORT).show();
+										}
+										for (int i = 0, j = list.length(); i < j; i++) {
+											JSONObject job = list
+													.optJSONObject(i);
+											GrabOrderModel gom = new GrabOrderModel();
+											gom.setAddress(job
+													.getString("address"));
+											gom.setCategory(job
+													.getString("category"));
+											gom.setCreateDate(job
+													.getString("createDate"));
+											gom.setDistance(job
+													.getString("distance"));
+											gom.setId(job.getString("id"));
+											gom.setPrice(job.getString("price"));
+											gom.setReleaseUserId(job
+													.getString("releaseUserId"));
+											gom.setReleaseUserImg(job
+													.getString("releaseUserImg"));
+											gom.setReleaseUserName(job
+													.getString("releaseUserName"));
+											gom.setSynopsis(job
+													.getString("synopsis"));
+											gom.setTitle(job.getString("title"));
+											gom.setStartDate(job
+													.getString("endDate"));
+											gom.setMethod(job
+													.getString("method"));//
+											gom.setLabel(job.getString("label"));//
+											gom.setSex(job.getString("sex"));
+											gom.setIdentity(job
+													.getString("identity"));
+											gom.setTimeout(job
+													.getString("timeout"));
+											gom.setPosition(i);
+
+											JSONArray imglist = job
+													.getJSONArray("imgList");
+											for (int m = 0, n = imglist
+													.length(); m < n; m++) {
+												String img = imglist
+														.optString(m);
+												gom.getImgList().add(img);
+											}
+											JSONArray amArray = job
+													.getJSONArray("activityList");
+											ArrayList<ActivityModel> amList = new ArrayList<ActivityModel>();
+											for (int x = 0, y = amArray
+													.length(); x < y; x++) {
+												JSONObject object = amArray
+														.optJSONObject(x);
+												ActivityModel am = new ActivityModel();
+												am.setActivityId(object
+														.getString("activityId"));
+												am.setActivityTitle(object
+														.getString("activityTitle"));
+												am.setActivityImg(object
+														.getString("activityImg"));
+												amList.add(am);
+											}
+											gom.setActivityList(amList);
+											signleData.add(gom);
+										}
+										if (pd != null) {
+											pd.dismiss();
+										}
+										if (refresh.equals("f")) {
+											allData.clear();
+											allData.addAll(signleData);
+										} else {
+											allData.addAll(signleData);
+										}
+
+										if (allData.size() == 0) {
+											noOrder.setVisibility(View.VISIBLE);
+										} else {
+											noOrder.setVisibility(View.GONE);
+										}
+										Message msg = handler.obtainMessage();
+										msg.what = 101;
+										msg.sendToTarget();
+										mAdapter.notifyDataSetChanged();
+									} else { // state = error
+										if (pd != null) {
+											pd.dismiss();
+										}
+										Message msg = handler.obtainMessage();
+										msg.what = 102;
+										msg.sendToTarget();
+										Toast.makeText(LableGradActivity.this,
+												"暂无可抢单数据!", Toast.LENGTH_SHORT)
+												.show();
+									}
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									if (pd != null) {
+										pd.dismiss();
+									}
+									Message msg = handler.obtainMessage();
+									msg.what = 102;
+									msg.sendToTarget();
+								}
+							} else {// 提交失败
+								if (pd != null) {
+									pd.dismiss();
+								}
+								Message msg = handler.obtainMessage();
+								msg.what = 102;
+								msg.sendToTarget();
+								Toast.makeText(LableGradActivity.this,
+										"暂无可抢单数据!", Toast.LENGTH_SHORT).show();
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+							// TODO Auto-generated method stub
+							if (pd != null) {
+								pd.dismiss();
+							}
+							Message msg = handler.obtainMessage();
+							msg.what = 102;
+							msg.sendToTarget();
+							// 网络断开时进行相关操作
+							Toast.makeText(LableGradActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			if (pd != null) {
+				pd.dismiss();
+			}
+			Message msg = handler.obtainMessage();
+			msg.what = 102;
+			msg.sendToTarget();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			if (pd != null) {
+				pd.dismiss();
+			}
+			Message msg = handler.obtainMessage();
+			msg.what = 102;
+			msg.sendToTarget();
+		}
+
+	}
+
+	@Override
+	public void onRefresh(PullToRefreshLayout pullToRefreshLayout) {
+		// 下拉刷新操作
+		new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				total = 0;
+				type = "0";
+				method = "2";
+				orderType = "2";
+				timeout = "0";
+				onlinePay = "0";
+				sort = "0";
+				distance = "3";
+				getGrabListAsync(type, "f");
+				// 千万别忘了告诉控件刷新完毕了哦！
+			}
+		}.sendEmptyMessageDelayed(0, 0);
+	}
+
+	@Override
+	public void onLoadMore(PullToRefreshLayout pullToRefreshLayout) {
+		// 加载操作
+		new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				total += count;
+				getGrabListAsync(type, "n");
+				// 千万别忘了告诉控件加载完毕了哦！
+			}
+		}.sendEmptyMessageDelayed(0, 0);
+	}
+}

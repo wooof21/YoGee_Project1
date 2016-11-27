@@ -1,0 +1,215 @@
+/**
+ * 
+ * @param
+ */
+package com.youge.jobfinder.activity;
+
+import tools.Exit;
+
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+import com.youge.jobfinder.R.id;
+
+import fragment.MyOrderInProcessFragment;
+import fragment.MyOrderMianWdLvFragment;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.os.Message;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.TextView;
+
+/**
+ * 
+ * @param
+ */
+public class OrderListMain extends BaseActivity implements OnClickListener{
+
+	private TextView myGrab, inProcess, myPost, underline1, underline2,
+			underline3;
+
+	private MyOrderMianWdLvFragment wdFragment; // 我的抢单 我的发单 lv
+	private MyOrderInProcessFragment ipFragment;
+
+	private FragmentManager fm;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.my_order_main);
+		initView();
+
+		setWdLvFragment();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	private void initView(){
+		// //透明状态栏
+		// getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		// //透明导航栏
+		// getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		Exit.getInstance().addActivity(this);
+		myGrab = (TextView) findViewById(R.id.my_order_main_mygrab);
+		inProcess = (TextView) findViewById(R.id.my_order_main_inprocess);
+		myPost = (TextView) findViewById(R.id.my_order_main_mypost);
+		underline1 = (TextView) findViewById(R.id.my_order_main_underline1);
+		underline2 = (TextView) findViewById(R.id.my_order_main_underline2);
+		underline3 = (TextView) findViewById(R.id.my_order_main_underline3);
+
+		myGrab.setOnClickListener(this);
+		inProcess.setOnClickListener(this);
+		myPost.setOnClickListener(this);
+
+		fm = getFragmentManager();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onClick(View v){
+		// TODO Auto-generated method stub
+		// 开启一个Fragment事务
+		FragmentTransaction transaction = fm.beginTransaction();
+		// transaction.setCustomAnimations(R.animator.slide_in_left,
+		// R.animator.slide_out_right);
+		// 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
+		hideAll(transaction);
+		switch(v.getId()){
+			case R.id.my_order_main_mygrab:
+				setBgById(R.id.my_order_main_mygrab);
+				switchToGrab(transaction);
+			break;
+			case R.id.my_order_main_inprocess:
+				setBgById(R.id.my_order_main_inprocess);
+				switchToInProcess(transaction);
+			break;
+			case R.id.my_order_main_mypost:
+				setBgById(R.id.my_order_main_mypost);
+				switchToPost(transaction);
+			break;
+			default:
+			break;
+		}
+		transaction.commit();
+	}
+
+	private void setBgById(int id){
+		switch(id){
+			case R.id.my_order_main_mygrab:
+				underline1.setVisibility(View.VISIBLE);
+				underline2.setVisibility(View.INVISIBLE);
+				underline3.setVisibility(View.INVISIBLE);
+			break;
+			case R.id.my_order_main_inprocess:
+				underline2.setVisibility(View.VISIBLE);
+				underline1.setVisibility(View.INVISIBLE);
+				underline3.setVisibility(View.INVISIBLE);
+			break;
+			case R.id.my_order_main_mypost:
+				underline3.setVisibility(View.VISIBLE);
+				underline2.setVisibility(View.INVISIBLE);
+				underline1.setVisibility(View.INVISIBLE);
+			break;
+			default:
+			break;
+		}
+	}
+
+	/**
+	 * // API LEVEL 11 fragmentTransaction.setCustomAnimations(
+	 * R.animator.fragment_slide_left_enter,
+	 * R.animator.fragment_slide_right_exit);
+	 * 
+	 * // API LEVEL 13 // fragmentTransaction.setCustomAnimations( //
+	 * R.animator.fragment_slide_left_enter, //
+	 * R.animator.fragment_slide_left_exit, //
+	 * R.animator.fragment_slide_right_enter, //
+	 * R.animator.fragment_slide_right_exit);
+	 * 
+	 * @param
+	 */
+
+	private void setWdLvFragment(){
+		FragmentTransaction transaction = fm.beginTransaction();
+		// transaction.setCustomAnimations(R.animator.slide_in_left,
+		// R.animator.slide_out_right);
+		wdFragment = new MyOrderMianWdLvFragment();
+		getIntent().putExtra("gOrp", "g");
+		transaction.add(R.id.order_list_frame, wdFragment);
+		transaction.commit();
+	}
+
+	private void hideAll(FragmentTransaction transaction){
+		if (wdFragment != null){
+			transaction.hide(wdFragment);
+		}
+		if (ipFragment != null){
+			transaction.hide(ipFragment);
+		}
+
+	}
+
+	private void switchToGrab(FragmentTransaction transaction){
+		if (wdFragment != null){
+			transaction.show(wdFragment);
+		}else{
+			wdFragment = new MyOrderMianWdLvFragment();
+			transaction.add(R.id.order_list_frame, wdFragment);
+		}
+		Message msg = MyOrderMianWdLvFragment.instance.handler.obtainMessage();
+		msg.obj = "g";
+		msg.sendToTarget();
+	}
+
+	private void switchToPost(FragmentTransaction transaction){
+		if (wdFragment != null){
+			transaction.show(wdFragment);
+		}else{
+			wdFragment = new MyOrderMianWdLvFragment();
+			transaction.add(R.id.order_list_frame, wdFragment);
+		}
+		Message msg = MyOrderMianWdLvFragment.instance.handler.obtainMessage();
+		msg.obj = "p";
+		msg.sendToTarget();
+	}
+
+	private void switchToInProcess(FragmentTransaction transaction){
+		if (ipFragment != null){
+			transaction.show(ipFragment);
+		}else{
+			ipFragment = new MyOrderInProcessFragment();
+			transaction.add(R.id.order_list_frame, ipFragment);
+		}
+	}
+}

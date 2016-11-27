@@ -1,0 +1,844 @@
+package fragment;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+import waterdroplv.WaterDropListView;
+import waterdroplv.WaterDropListView.IWaterDropListViewListener;
+import adapter.MyOrderInProcessAdapter;
+import adapter.MyOrderListAdapter;
+import android.app.Fragment;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.umeng.analytics.MobclickAgent;
+import com.youge.jobfinder.R;
+import com.youge.jobfinder.activity.OrderListDetailActivity;
+
+public class MyOrderMianWdLvFragment extends Fragment implements
+		IWaterDropListViewListener{
+
+	private WaterDropListView lv;
+	private LinearLayout noOrder;
+	private ImageView iv;
+	private int total = 0; // 分页起始
+	private int count = 10; // 分页结束
+	private String lat = "0", lng = "0";
+
+	private ArrayList<HashMap<String, String>> listAll;
+	private MyOrderListAdapter molAdapter;
+	private MyOrderInProcessAdapter ipAdapter;
+	private String gOrp;
+
+	public static MyOrderMianWdLvFragment instance;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(R.layout.my_order_main_frag1, container,
+				false);
+
+		lv = (WaterDropListView) view
+				.findViewById(R.id.my_order_main_frag1_wdlv);
+		noOrder = (LinearLayout) view.findViewById(R.id.my_order_frag1_ll);
+		iv = (ImageView) view.findViewById(R.id.my_order_frag1_iv);
+		gOrp = getActivity().getIntent().getStringExtra("gOrp");
+		System.out.println("gOrp ---> " + gOrp);
+		instance = this;
+		listAll = new ArrayList<HashMap<String, String>>();
+		molAdapter = new MyOrderListAdapter(getActivity()
+				.getApplicationContext(), listAll, "undone");
+		lv.setWaterDropListViewListener(MyOrderMianWdLvFragment.this);
+		lv.setPullLoadEnable(true);
+		lv.setAdapter(molAdapter);
+
+		lv.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id){
+				// TODO Auto-generated method stub
+
+				try{
+					System.out.println("position ---> " + position);
+					System.out.println("OnItemClickListener category ---> "
+							+ listAll.get(position - 1).get("category"));
+					Intent intent = new Intent(getActivity(),
+							OrderListDetailActivity.class);
+					intent.putExtra("category",
+							listAll.get(position - 1).get("category"));
+					intent.putExtra("oid", listAll.get(position - 1).get("id"));
+					startActivity(intent);
+					// if (gOrp.equals("g")){
+					// if (listAll.get(position - 1).get("orderState")
+					// .equals("2")
+					// || listAll.get(position - 1).get("orderState")
+					// .equals("1")){ // // 没抢（没报价） 待选择
+					// // 1和2必为报价单 2-->报价没选中
+					// // 进行中 显示横排报价人列表
+					// Intent intent = new Intent(getActivity(),
+					// OrderDetailActivity.class);
+					// intent.putExtra("category",
+					// listAll.get(position - 1).get("category"));
+					// intent.putExtra("id", listAll.get(position - 1)
+					// .get("id"));
+					// getActivity().startActivity(intent);
+					// }else{
+					// Intent intent = new Intent(getActivity(),
+					// OrderStatusDetailActivity.class);
+					// intent.putExtra("where", gOrp);
+					// intent.putExtra("category",
+					// listAll.get(position - 1).get("category"));
+					// intent.putExtra("orderState", listAll.get(position - 1)
+					// .get("orderState"));
+					// intent.putExtra("oid", listAll.get(position -
+					// 1).get("id"));
+					// getActivity().startActivity(intent);
+					// }
+					// }else{ // 非已报价的页面 根据 gOrp 和 category判断显示不同页面元素, (竖排报价人列表)
+					// Intent intent = new Intent(getActivity(),
+					// OrderStatusDetailActivity.class);
+					// intent.putExtra("where", gOrp);
+					// intent.putExtra("category",
+					// listAll.get(position - 1).get("category"));
+					// intent.putExtra("orderState", listAll.get(position - 1)
+					// .get("orderState"));
+					// intent.putExtra("oid", listAll.get(position -
+					// 1).get("id"));
+					// getActivity().startActivity(intent);
+					// }
+				}catch(IndexOutOfBoundsException e){
+					// TODO: handle exception
+
+				}
+
+			}
+		});
+		// grabListHttpCilent(new Tools().getUserId(getActivity()), "f");
+		orderListHttpClient(new Tools().getUserId(getActivity()), "f", "1", true);
+		return view;
+	}
+
+	/**
+	 * 包含Activity、Fragment或View的应用 1. MobclickAgent.onResume()
+	 * 和MobclickAgent.onPause() 方法是用来统计应用时长的(也就是Session时长,当然还包括一些其他功能) 2.
+	 * MobclickAgent.onPageStart() 和 MobclickAgent.onPageEnd() 方法是用来统计页面跳转的
+	 * 
+	 * 在仅有Activity的程序中，SDK 自动帮助开发者调用了 2. 中的方法，并把Activity
+	 * 类名作为页面名称统计。但是在包含fragment的程序中我们希望统计更详细的页面，所以需要自己调用方法做更详细的统计。
+	 * 首先，需要在程序入口处，调用 MobclickAgent.openActivityDurationTrack(false)
+	 * 禁止默认的页面统计方式，这样将不会再自动统计Activity。
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		MobclickAgent.openActivityDurationTrack(false);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+		MobclickAgent.onPageStart("MyOrderMianWdLvFragment"); // 统计页面(仅有Activity的应用中SDK自动调用，不需要单独写)
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onPause(){
+		// TODO Auto-generated method stub
+		MobclickAgent.onPageEnd("MyOrderMianWdLvFragment"); // （仅有Activity的应用中SDK自动调用，不需要单独写）保证
+		// onPageEnd 在onPause
+		// 之前调用,因为 onPause 中会保存信息
+		super.onPause();
+	}
+
+	public Handler handler = new Handler(){//
+
+		@Override
+		public void handleMessage(Message msg){
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			gOrp = (String) msg.obj;
+			System.out.println("gOrp handler ---> " + gOrp);
+			total = 0;
+			count = 10;
+			listAll = new ArrayList<HashMap<String, String>>();
+			if (gOrp.equals("undone")){
+				molAdapter = new MyOrderListAdapter(getActivity()
+						.getApplicationContext(), listAll, "undone");
+				lv.setAdapter(molAdapter);
+				orderListHttpClient(new Tools().getUserId(getActivity()), "f", "1", true);
+			}else if (gOrp.equals("done")){
+				molAdapter = new MyOrderListAdapter(getActivity()
+						.getApplicationContext(), listAll, "done");
+				lv.setAdapter(molAdapter);
+				orderListHttpClient(new Tools().getUserId(getActivity()), "f", "3", true);
+			}else{
+				molAdapter = new MyOrderListAdapter(getActivity()
+						.getApplicationContext(), listAll, "inprocess");
+				lv.setAdapter(molAdapter);
+				orderListHttpClient(new Tools().getUserId(getActivity()), "f", "2", true);
+			}
+		}
+
+	};
+
+	
+	private void orderListHttpClient(String uid, final String refresh, final String type, final boolean first){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(getActivity());
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("userid", uid);//
+			job.put("total", total + "");
+			job.put("count", count + "");
+			job.put("type", type);
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(getActivity(), Config.ORDER_LIST_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							if (arg0 == 200){
+								String str = new String(arg2);
+								String message = "";
+								System.out.println("订单列表数据返回 ---> " + str);
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									message = job.getString("msg");
+									if (state.equals("success")){
+										pd.dismiss();
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("list");
+										ArrayList<HashMap<String, String>> singleList = new ArrayList<HashMap<String, String>>();
+										if (jArray.length() == 0){
+											Toast.makeText(getActivity(),
+													"无更多", Toast.LENGTH_SHORT)
+													.show();
+										}
+										for(int i = 0, j = jArray.length(); i < j; i++){
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											JSONObject json = jArray
+													.optJSONObject(i);
+											hashMap.put("address",
+													json.getString("address"));
+											hashMap.put("category",
+													json.getString("category"));
+											hashMap.put("createDate", json
+													.getString("createDate"));
+											hashMap.put("endDate",
+													json.getString("endDate"));
+											hashMap.put("id",
+													json.getString("id"));
+											hashMap.put("method",
+													json.getString("method"));
+											hashMap.put("orderState", json
+													.getString("orderState"));
+											hashMap.put("synopsis",
+													json.getString("synopsis"));
+											hashMap.put("title",
+													json.getString("title"));
+											hashMap.put("type",
+													json.getString("type"));
+											hashMap.put("userid",
+													json.getString("userid"));
+											hashMap.put("userimg",
+													json.getString("userimg"));
+											hashMap.put("username",
+													json.getString("username"));
+											hashMap.put("timeout",
+													json.getString("timeout"));//超时 0没有，有
+											hashMap.put("style",
+													json.getString("style")); //0我发布的，1我抢的
+
+											singleList.add(hashMap);
+										}
+										if (refresh.equals("f")){
+											listAll.clear();
+											listAll.addAll(singleList);
+										}else{
+											listAll.addAll(singleList);
+										}
+										if(first){
+											if (listAll.size() == 0){
+												Message msg = hideHandler
+														.obtainMessage();
+												msg.what = 1;
+												msg.obj = type;
+												msg.sendToTarget();
+											}else{
+												Message msg = hideHandler
+														.obtainMessage();
+												msg.what = 3;
+												msg.obj = type;
+												msg.sendToTarget();
+											}
+										}
+										molAdapter.notifyDataSetChanged();
+										
+									}else{
+										pd.dismiss();
+										Toast.makeText(getActivity(), message,
+												Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									pd.dismiss();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(getActivity(), "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+
+	}
+	
+	
+	private Handler hideHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg){
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch(msg.what){
+				case 1: // 抢单
+					lv.setVisibility(View.GONE);
+					noOrder.setVisibility(View.VISIBLE);
+					if(msg.obj.equals("1")){
+						iv.setImageResource(R.drawable.order_no_grab);
+					}else if(msg.obj.equals("2")){
+						iv.setImageResource(R.drawable.order_no_inprocess);
+					}else{
+						iv.setImageResource(R.drawable.order_no_post);
+					}
+				break;
+				case 2: // 发单
+					lv.setVisibility(View.GONE);
+					noOrder.setVisibility(View.VISIBLE);
+					iv.setImageResource(R.drawable.order_no_post);
+				break;
+				case 3:
+					lv.setVisibility(View.VISIBLE);
+					noOrder.setVisibility(View.GONE);
+				break;
+				case 4:
+					lv.setVisibility(View.VISIBLE);
+					noOrder.setVisibility(View.GONE);
+				break;
+				case 5:
+					lv.setVisibility(View.GONE);
+					noOrder.setVisibility(View.VISIBLE);
+					iv.setImageResource(R.drawable.order_no_inprocess);
+				break;
+				case 6:
+					lv.setVisibility(View.VISIBLE);
+					noOrder.setVisibility(View.GONE);
+				break;
+				default:
+				break;
+			}
+		}
+
+	};
+
+	private void inProcessHttpClient(String uid, final String refresh){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(getActivity());
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("userid", uid);
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+
+			HttpClient.post(getActivity(), Config.MY_ORDER_LIST_INPROCESS_URL,
+					se, new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							if (arg0 == 200){
+								String str = new String(arg2);
+								System.out.println("我的订单 进行中数据返回  ---> " + str);
+								String msg = "";
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									msg = job.getString("msg");
+									if (state.equals("success")){
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("list");
+										ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
+										for(int i = 0, j = jArray.length(); i < j; i++){
+											JSONObject jObject = jArray
+													.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("address", jObject
+													.getString("address"));
+											hashMap.put("endDate", jObject
+													.getString("endDate"));
+											hashMap.put("id",
+													jObject.getString("id"));
+											hashMap.put("method",
+													jObject.getString("method"));
+											hashMap.put("orderState", jObject
+													.getString("orderState"));
+											hashMap.put("price",
+													jObject.getString("price"));
+											hashMap.put("startDate", jObject
+													.getString("startDate"));
+											hashMap.put("synopsis", jObject
+													.getString("synopsis"));
+											hashMap.put("title",
+													jObject.getString("title"));
+											hashMap.put("type",
+													jObject.getString("type"));
+											hashMap.put("countdown", jObject
+													.getString("countdown"));
+											hashMap.put("category", jObject
+													.getString("category"));
+											hashMap.put("label",
+													jObject.getString("label"));
+
+											list.add(hashMap);
+										}
+										if (refresh.equals("f")){
+											listAll.clear();
+											listAll.addAll(list);
+										}else{
+											listAll.addAll(list);
+										}
+										if (listAll.size() == 0){
+											Message msg2 = hideHandler
+													.obtainMessage();
+											msg2.what = 5;
+											msg2.sendToTarget();
+										}else{
+											Message msg2 = hideHandler
+													.obtainMessage();
+											msg2.what = 6;
+											msg2.sendToTarget();
+										}
+										ipAdapter.notifyDataSetChanged();
+
+									}else{
+										Toast.makeText(getActivity(), msg,
+												Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}else{
+								Toast.makeText(getActivity(), "获取进行中订单失败,请重试!",
+										Toast.LENGTH_SHORT).show();
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(getActivity(), "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+
+	private void postListHttpCilent(String uid, final String refresh){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(getActivity());
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("userid", uid);
+			job.put("total", total + "");
+			job.put("count", count + "");
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(getActivity(), Config.MY_ORDER_LIST_POST_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							if (arg0 == 200){ //
+								String str = new String(arg2);
+								System.out
+										.println("我的发单数据返回  MyOrderMianWdLvFragment ---> "
+												+ str);
+								String msg = "";
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									msg = job.getString("msg");
+									if (state.equals("success")){
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray list = data
+												.getJSONArray("list");
+										if (list.length() == 0){
+											Toast.makeText(getActivity(),
+													"无更多", Toast.LENGTH_SHORT)
+													.show();
+										}
+										ArrayList<HashMap<String, String>> singleList = new ArrayList<HashMap<String, String>>();
+										for(int i = 0, j = list.length(); i < j; i++){
+											JSONObject jObject = list
+													.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("address", jObject
+													.getString("address"));
+											hashMap.put("category", jObject
+													.getString("category"));
+											hashMap.put("createDate", jObject
+													.getString("createDate"));
+											hashMap.put("id",
+													jObject.getString("id"));
+											hashMap.put("method",
+													jObject.getString("method"));
+											hashMap.put("orderState", jObject
+													.getString("orderState"));
+											hashMap.put("synopsis", jObject
+													.getString("synopsis"));
+											hashMap.put("title",
+													jObject.getString("title"));
+											hashMap.put("userState", jObject
+													.getString("userState"));
+											hashMap.put("label",
+													jObject.getString("label"));
+											hashMap.put("endDate", jObject
+													.getString("endDate"));
+
+											singleList.add(hashMap);
+										}
+										if (refresh.equals("f")){
+											listAll.clear();
+											listAll.addAll(singleList);
+										}else{
+											listAll.addAll(singleList);
+										}
+										if (listAll.size() == 0){
+											Message msg2 = hideHandler
+													.obtainMessage();
+											msg2.what = 2;
+											msg2.sendToTarget();
+										}else{
+											Message msg2 = hideHandler
+													.obtainMessage();
+											msg2.what = 4;
+											msg2.sendToTarget();
+										}
+										molAdapter.notifyDataSetChanged();
+									}else{
+										Toast.makeText(getActivity(), msg,
+												Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									pd.dismiss();
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(getActivity(), "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}//
+		catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+	private void grabListHttpCilent(String uid, final String refresh){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(getActivity());
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("userid", uid);//
+			job.put("total", total + "");
+			job.put("count", count + "");
+			job.put("lat", lat);
+			job.put("lng", lng);
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(getActivity(), Config.MY_ORDER_LIST_GRAB_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							if (arg0 == 200){
+								String str = new String(arg2);
+								String message = "";
+								System.out.println("抢单数据返回 ---> " + str);
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									message = job.getString("msg");
+									if (state.equals("success")){
+										pd.dismiss();
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("list");
+										ArrayList<HashMap<String, String>> singleList = new ArrayList<HashMap<String, String>>();
+										if (jArray.length() == 0){
+											Toast.makeText(getActivity(),
+													"无更多", Toast.LENGTH_SHORT)
+													.show();
+										}
+										for(int i = 0, j = jArray.length(); i < j; i++){
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											JSONObject json = jArray
+													.optJSONObject(i);
+											hashMap.put("address",
+													json.getString("address"));
+											hashMap.put("category",
+													json.getString("category"));
+											hashMap.put("createDate", json
+													.getString("createDate"));
+											hashMap.put("distance",
+													json.getString("distance"));
+											hashMap.put("orderState", json
+													.getString("orderState"));
+											hashMap.put("id",
+													json.getString("id"));
+											hashMap.put("method",
+													json.getString("method"));
+											hashMap.put("releaseUserId", json
+													.getString("releaseUserId"));
+											hashMap.put(
+													"releaseUserImg",
+													json.getString("releaseUserImg"));
+											hashMap.put(
+													"releaseUserName",
+													json.getString("releaseUserName"));
+											hashMap.put("synopsis",
+													json.getString("synopsis"));
+											hashMap.put("title",
+													json.getString("title"));
+											hashMap.put("label",
+													json.getString("label"));
+											hashMap.put("endDate",
+													json.getString("endDate"));
+
+											singleList.add(hashMap);
+										}
+										if (refresh.equals("f")){
+											listAll.clear();
+											listAll.addAll(singleList);
+										}else{
+											listAll.addAll(singleList);
+										}
+										if (listAll.size() == 0){
+											Message msg = hideHandler
+													.obtainMessage();
+											msg.what = 1;
+											msg.sendToTarget();
+										}else{
+											Message msg = hideHandler
+													.obtainMessage();
+											msg.what = 3;
+											msg.sendToTarget();
+										}
+										molAdapter.notifyDataSetChanged();
+
+									}else{
+										pd.dismiss();
+										Toast.makeText(getActivity(), message,
+												Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									pd.dismiss();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(getActivity(), "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+
+	}
+
+	@Override
+	public void onRefresh(){
+		// TODO Auto-generated method stub
+		total = 0;
+		if (gOrp.equals("undone")){
+			orderListHttpClient(new Tools().getUserId(getActivity()), "f", "1", true);
+		}else if (gOrp.equals("done")){
+			orderListHttpClient(new Tools().getUserId(getActivity()), "f", "3", true);
+		}else{
+			orderListHttpClient(new Tools().getUserId(getActivity()), "f", "2", true);
+		}
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(1);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+		});
+
+	}
+
+	@Override
+	public void onLoadMore(){
+		// TODO Auto-generated method stub
+		total += count;
+		if (gOrp.equals("undone")){
+			orderListHttpClient(new Tools().getUserId(getActivity()), "n", "1", false);
+		}else if (gOrp.equals("done")){
+			orderListHttpClient(new Tools().getUserId(getActivity()), "n", "3", false);
+		}else{
+			orderListHttpClient(new Tools().getUserId(getActivity()), "n", "2", false);
+		}
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(2);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * handler 处理waterdroplistview刷新加载
+	 */
+	private Handler wdlvHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			super.handleMessage(msg);
+			switch(msg.what){
+				case 1:
+					lv.stopRefresh();
+				break;
+				case 2:
+					lv.stopLoadMore();
+				break;
+			}
+
+		}
+	};
+
+}

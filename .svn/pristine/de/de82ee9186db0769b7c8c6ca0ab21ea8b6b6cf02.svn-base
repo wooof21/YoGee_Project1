@@ -1,0 +1,135 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f5"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true" >
+
+    <FrameLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#22b570" >
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/back"
+            android:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="铭牌"
+            android:textColor="#ffffff"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/title_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="简历隐私协议"
+            android:textColor="#ffffff"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="15dp"
+            android:text="提交"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingTop="5dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:text="简历隐私协议"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="        “找事吧”（以下简称“我们”）强调保护所有用户的隐私权，我们将为每个用户提供最安全，最可靠的服务。您可以通过“找事吧”完全控制自己的个人信息。以下是我们的承诺："
+                android:textColor="#515151"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="1．用户信息\n
+        当用户到我们平台上注册并填写简历的时候，用户会被要求提供一系列个人基本信息，如用户的姓名、地址、电子邮件、电话号码等等。除非我们认为出于法律的需要，我们不会以个人名义向第三方公开上述信息。"
+                android:textColor="#515151"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="2．关于个人简历\n
+        “找事吧”为用户的简历提供两种默认开放权限。"
+                android:textColor="#515151"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="2.1对找事吧开放\n
+        用户将在“找事吧”上填写统一的简历表格， “找事吧”有权根据其判断保留修改或删除任何不适信息的权利。"
+                android:textColor="#515151"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="2.2对外开放\n
+        用户可以在“找事吧”上自由修改用户的个人信息和简历。除了用户本人，任何人无权修改或删除其账号下的个人信息。但是用户的简历可能在抢单、报价等功能的使用中被其他用户查看。"
+                android:textColor="#515151"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="免责条款\n
+        1.   用户承认并同意对存入个人中心的个人简历及材料的格式、内容的准确性和合法性负有全部责任。 “找事吧”对由此导致的任何损失或伤害不承担任何责任。\n
+        2.“找事吧”对由于政府禁令、现行生效的适用法律或法规的变更、火灾、地震、动乱、战争、停电、通讯线路中断、黑客攻击、计算机病毒侵入或发作、电信部门技术调整、因政府管制而造成网站的暂时性关闭等任何影响网络正常运营的不可预见、不可避免、不可克服和不可控制的事件（“不可抗力事件”），以及他人蓄意破坏、“找事吧”工作人员的疏忽或不当使用，正常的系统维护、系统升级，或者因网络拥塞而导致本网站不能访问而造成的本网站所提供的信息及数据的延误、停滞或错误，以及使用者由此受到的一切损失不承担任何责任。\n
+        3.“找事吧”不能保证用户的简历会有一定数目的使用者来浏览，也不能保证会有一位特定的用户来浏览。对于其他链接在本平台的简历查看，“找事吧”概不负法律责任。\n
+        4.“找事吧”保留随时修正本服务条款的权利。"
+                android:textColor="#515151"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

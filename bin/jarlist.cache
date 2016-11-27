@@ -1,0 +1,13 @@
+# cache for current jar dependency. DO NOT EDIT.
+# format is <lastModified> <length> <SHA-1> <path>
+# Encoding is UTF-8
+1451269273562 190604 6500c123b711a614351dec62ac91463d6fd1d1a3 D:\workspace\SMSSDK\libs\MobTools.jar
+1451268977638 190604 6500c123b711a614351dec62ac91463d6fd1d1a3 D:\workspace\JobFinder\libs\MobTools.jar
+1451268976913 15571 637c6a0dd03aafadaa7f2c33bb2cfa8e16f3ce2f D:\workspace\JobFinder\libs\MobCommons.jar
+1451269273561 15571 637c6a0dd03aafadaa7f2c33bb2cfa8e16f3ce2f D:\workspace\SMSSDK\libs\MobCommons.jar
+1451269273582 114737 f36d2d4e3a36b3259aaf9d004d29b4cdc6c1bfb2 D:\workspace\multi-image-selector\libs\picasso-2.4.0.jar
+1451268976904 114737 f36d2d4e3a36b3259aaf9d004d29b4cdc6c1bfb2 D:\workspace\JobFinder\libs\picasso-2.4.0.jar
+1451268976903 85733 189e8569c1be39d141430d3add25b9acc44c3bda D:\workspace\JobFinder\libs\SMSSDK-2.0.0.jar
+1451269273563 85733 189e8569c1be39d141430d3add25b9acc44c3bda D:\workspace\SMSSDK\libs\SMSSDK-2.0.0.jar
+1451268976606 1294803 0725d32f682f72bdfb3f61a2cd04dc3763710b6c D:\workspace\JobFinder\libs\android-support-v4.jar
+1451269273581 621451 5896b0a4e377ac4242eb2bc785220c1c4fc052f4 D:\workspace\multi-image-selector\libs\android-support-v4.jar

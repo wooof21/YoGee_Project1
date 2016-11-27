@@ -1,0 +1,752 @@
+/**
+ * 
+ * @param
+ */
+package fragment;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.umeng.analytics.MobclickAgent;
+import com.youge.jobfinder.R;
+import com.youge.jobfinder.activity.OrderListDetailActivity;
+import com.youge.jobfinder.activity.OrderStatusDetailActivity;
+
+import android.app.Fragment;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.LinearLayout.LayoutParams;
+
+/**
+ * 
+ * @param
+ */
+public class MyOrderInProcessFragment extends Fragment implements
+		OnClickListener {
+
+	private LinearLayout myPost, myGrab, myPostLabel, myGrabLabel, noOrder;
+	private TextView myPostTitle, myPostContent, myPostStartDate,
+			myPostEndDate, myPostTimeCount, myPostAddress, myPostPrice;
+	private TextView myGrabTitle, myGrabContent, myGrabStartDate,
+			myGrabEndDate, myGrabTimeCount, myGrabAddress, myGrabPrice;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(R.layout.my_order_main_frag2, null);
+		initView(view);
+
+		inProcessHttpClient(new Tools().getUserId(getActivity()));
+		return view;
+	}
+	/**
+	 * 包含Activity、Fragment或View的应用 1. MobclickAgent.onResume()
+	 * 和MobclickAgent.onPause() 方法是用来统计应用时长的(也就是Session时长,当然还包括一些其他功能) 2.
+	 * MobclickAgent.onPageStart() 和 MobclickAgent.onPageEnd() 方法是用来统计页面跳转的
+	 * 
+	 * 在仅有Activity的程序中，SDK 自动帮助开发者调用了 2. 中的方法，并把Activity
+	 * 类名作为页面名称统计。但是在包含fragment的程序中我们希望统计更详细的页面，所以需要自己调用方法做更详细的统计。
+	 * 首先，需要在程序入口处，调用 MobclickAgent.openActivityDurationTrack(false)
+	 * 禁止默认的页面统计方式，这样将不会再自动统计Activity。
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		MobclickAgent.openActivityDurationTrack(false);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+		MobclickAgent.onPageStart("MyOrderInProcessFragment"); // 统计页面(仅有Activity的应用中SDK自动调用，不需要单独写)
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onPause(){
+		// TODO Auto-generated method stub
+		MobclickAgent.onPageEnd("MyOrderInProcessFragment"); // （仅有Activity的应用中SDK自动调用，不需要单独写）保证
+													// onPageEnd 在onPause
+													// 之前调用,因为 onPause 中会保存信息
+		super.onPause();
+	}
+	private void initView(View root) {
+		myPost = (LinearLayout) root.findViewById(R.id.my_order_frag2_mypost);
+		myGrab = (LinearLayout) root.findViewById(R.id.my_order_frag2_mygrab);
+		noOrder = (LinearLayout) root.findViewById(R.id.my_order_frag2_ll);
+		myPostTitle = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_title);
+		myPostLabel = (LinearLayout) root
+				.findViewById(R.id.my_order_frag2_mypost_label);
+		myPostContent = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_content);
+		myPostStartDate = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_starttime);
+		myPostEndDate = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_endtime);
+		myPostTimeCount = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_timecount);
+		myPostAddress = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_address);
+		myPostPrice = (TextView) root
+				.findViewById(R.id.my_order_frag2_mypost_price);
+
+		myGrabTitle = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_title);
+		myGrabLabel = (LinearLayout) root
+				.findViewById(R.id.my_order_frag2_mygrab_label);
+		myGrabContent = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_content);
+		myGrabStartDate = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_starttime);
+		myGrabEndDate = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_endtime);
+		myGrabTimeCount = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_timecount);
+		myGrabAddress = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_address);
+		myGrabPrice = (TextView) root
+				.findViewById(R.id.my_order_frag2_mygrab_price2);
+
+		myPost.setVisibility(View.GONE);
+		myGrab.setVisibility(View.GONE);
+
+	}
+
+	private Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			final ArrayList<HashMap<String, String>> list = (ArrayList<HashMap<String, String>>) msg.obj;
+			final Intent intent = new Intent(getActivity(),
+					OrderListDetailActivity.class);
+			if (list.size() == 0) {
+				noOrder.setVisibility(View.VISIBLE);
+			} else if (list.size() == 1) {
+				if (list.get(0).get("type").equals("1")) { // 发单
+					myPost.setVisibility(View.VISIBLE);
+					myPostTitle.setText(list.get(0).get("title"));
+					myPostAddress.setText(list.get(0).get("address"));
+					myPostContent.setText(list.get(0).get("synopsis"));
+					myPostEndDate.setText(list.get(0).get("endDate"));
+					myPostStartDate.setText(list.get(0).get("startDate"));
+					myPostTimeCount.setText(list.get(0).get("countdown"));
+					if (list.get(0).get("price").equals("0")) {
+						myPostPrice.setText("?");
+					} else {
+						myPostPrice.setText(list.get(0).get("price"));
+					}
+					myPost.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_post");
+							intent.putExtra("category",
+									list.get(0).get("category"));
+							intent.putExtra("oid", list.get(0).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 只有一个发单, 发单label ****************************/
+					String[] labels = list.get(0).get("label").split(",");
+
+					ImageView onoff = new ImageView(getActivity());
+					LayoutParams lp = new LayoutParams(30, 30);
+					lp.gravity = Gravity.CENTER_VERTICAL;
+					onoff.setLayoutParams(lp);
+
+					if (list.get(0).get("method").equals("1")) {
+						onoff.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff.setImageResource(R.drawable.xianxia);
+					}
+					myPostLabel.removeAllViews();
+					myPostLabel.addView(onoff);
+
+					for (int i = 0, j = labels.length; i < j; i++) {
+						if (labels[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myPostLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+				} else { // 抢单
+					myGrab.setVisibility(View.VISIBLE);
+					myGrabTitle.setText(list.get(0).get("title"));
+					myGrabAddress.setText(list.get(0).get("address"));
+					myGrabContent.setText(list.get(0).get("synopsis"));
+					myGrabEndDate.setText(list.get(0).get("endDate"));
+					myGrabStartDate.setText(list.get(0).get("startDate"));
+					myGrabTimeCount.setText(list.get(0).get("countdown"));
+					if (list.get(0).get("price").equals("0")) {
+						myGrabPrice.setText("?");
+					} else {
+						myGrabPrice.setText(list.get(0).get("price"));
+					}
+					myGrab.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_grab");
+							intent.putExtra("category",
+									list.get(0).get("category"));
+							intent.putExtra("oid", list.get(0).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 只有一个抢单, 抢单label ****************************/
+					String[] labels = list.get(0).get("label").split(",");
+
+					ImageView onoff = new ImageView(getActivity());
+					LayoutParams lp = new LayoutParams(30, 30);
+					lp.gravity = Gravity.CENTER_VERTICAL;
+					onoff.setLayoutParams(lp);
+
+					if (list.get(0).get("method").equals("1")) {
+						onoff.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff.setImageResource(R.drawable.xianxia);
+					}
+					myGrabLabel.removeAllViews();
+					myGrabLabel.addView(onoff);
+
+					for (int i = 0, j = labels.length; i < j; i++) {
+						if (labels[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myGrabLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+
+				}
+			} else {
+				myPost.setVisibility(View.VISIBLE);
+				myGrab.setVisibility(View.VISIBLE);
+				if (list.get(0).get("type").equals("1")) { // 发单
+					myPost.setVisibility(View.VISIBLE);
+					myPostTitle.setText(list.get(0).get("title"));
+					myPostAddress.setText(list.get(0).get("address"));
+					myPostContent.setText(list.get(0).get("synopsis"));
+					myPostEndDate.setText(list.get(0).get("endDate"));
+					myPostStartDate.setText(list.get(0).get("startDate"));
+					myPostTimeCount.setText(list.get(0).get("countdown"));
+					if (list.get(0).get("price").equals("0")) {
+						myPostPrice.setText("?");
+					} else {
+						myPostPrice.setText(list.get(0).get("price"));
+					}
+					myPost.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_post");
+							intent.putExtra("category",
+									list.get(0).get("category"));
+							intent.putExtra("oid", list.get(0).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 有抢单和发单时, 0为发单, 发单label ****************************/
+					String[] labels = list.get(0).get("label").split(",");
+
+					ImageView onoff = new ImageView(getActivity());
+					LayoutParams lp = new LayoutParams(30, 30);
+					lp.gravity = Gravity.CENTER_VERTICAL;
+					onoff.setLayoutParams(lp);
+
+					if (list.get(0).get("method").equals("1")) {
+						onoff.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff.setImageResource(R.drawable.xianxia);
+					}
+					myPostLabel.removeAllViews();
+					myPostLabel.addView(onoff);
+
+					for (int i = 0, j = labels.length; i < j; i++) {
+						if (labels[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myPostLabel.addView(iv);
+						} else if (labels[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myPostLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+
+					myGrabTitle.setText(list.get(1).get("title"));
+					myGrabAddress.setText(list.get(1).get("address"));
+					myGrabContent.setText(list.get(1).get("synopsis"));
+					myGrabEndDate.setText(list.get(1).get("endDate"));
+					myGrabStartDate.setText(list.get(1).get("startDate"));
+					myGrabTimeCount.setText(list.get(1).get("countdown"));
+					if (list.get(1).get("price").equals("0")) {
+						myGrabPrice.setText("?");
+					} else {
+						myGrabPrice.setText(list.get(1).get("price"));
+					}
+					myGrab.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_grab");
+							intent.putExtra("category",
+									list.get(1).get("category"));
+							intent.putExtra("oid", list.get(1).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 有抢单和发单时, 1为抢单, 抢单label ****************************/
+					String[] labels1 = list.get(1).get("label").split(",");
+
+					ImageView onoff1 = new ImageView(getActivity());
+					onoff1.setLayoutParams(lp);
+
+					if (list.get(1).get("method").equals("1")) {
+						onoff1.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff1.setImageResource(R.drawable.xianxia);
+					}
+					myGrabLabel.removeAllViews();
+					myGrabLabel.addView(onoff1);
+
+					for (int i = 0, j = labels1.length; i < j; i++) {
+						if (labels1[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myGrabLabel.addView(iv);
+						} else if (labels1[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myGrabLabel.addView(iv);
+						} else if (labels1[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myGrabLabel.addView(iv);
+						} else if (labels1[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myGrabLabel.addView(iv);
+						} else if (labels1[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myGrabLabel.addView(iv);
+						} else if (labels1[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myGrabLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+
+				} else {
+					myPostTitle.setText(list.get(1).get("title"));
+					myPostAddress.setText(list.get(1).get("address"));
+					myPostContent.setText(list.get(1).get("synopsis"));
+					myPostEndDate.setText(list.get(1).get("endDate"));
+					myPostStartDate.setText(list.get(1).get("startDate"));
+					myPostTimeCount.setText(list.get(1).get("countdown"));
+					if (list.get(1).get("price").equals("0")) {
+						myPostPrice.setText("?");
+					} else {
+						myPostPrice.setText(list.get(1).get("price"));
+					}
+					myPost.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_post");
+							intent.putExtra("category",
+									list.get(1).get("category"));
+							intent.putExtra("oid", list.get(1).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 有抢单和发单时, 1为发单, 发单label ****************************/
+					String[] labels1 = list.get(1).get("label").split(",");
+
+					ImageView onoff1 = new ImageView(getActivity());
+					LayoutParams lp = new LayoutParams(30, 30);
+					lp.gravity = Gravity.CENTER_VERTICAL;
+					onoff1.setLayoutParams(lp);
+
+					if (list.get(1).get("method").equals("1")) {
+						onoff1.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff1.setImageResource(R.drawable.xianxia);
+					}
+					myPostLabel.removeAllViews();
+					myPostLabel.addView(onoff1);
+
+					for (int i = 0, j = labels1.length; i < j; i++) {
+						if (labels1[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myPostLabel.addView(iv);
+						} else if (labels1[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myPostLabel.addView(iv);
+						} else if (labels1[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myPostLabel.addView(iv);
+						} else if (labels1[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myPostLabel.addView(iv);
+						} else if (labels1[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myPostLabel.addView(iv);
+						} else if (labels1[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myPostLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+
+					myGrabTitle.setText(list.get(0).get("title"));
+					myGrabAddress.setText(list.get(0).get("address"));
+					myGrabContent.setText(list.get(0).get("synopsis"));
+					myGrabEndDate.setText(list.get(0).get("endDate"));
+					myGrabStartDate.setText(list.get(0).get("startDate"));
+					myGrabTimeCount.setText(list.get(0).get("countdown"));
+					if (list.get(0).get("price").equals("0")) {
+						myGrabPrice.setText("?");
+					} else {
+						myGrabPrice.setText(list.get(0).get("price"));
+					}
+					myGrab.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							intent.putExtra("where", "inprocess_grab");
+							intent.putExtra("category",
+									list.get(0).get("category"));
+							intent.putExtra("oid", list.get(0).get("id"));
+							startActivity(intent);
+						}
+					});
+
+					/**************** 有抢单和发单时, 0为抢单, 抢单label ****************************/
+					String[] labels = list.get(0).get("label").split(",");
+
+					ImageView onoff = new ImageView(getActivity());
+					onoff.setLayoutParams(lp);
+
+					if (list.get(0).get("method").equals("1")) {
+						onoff.setImageResource(R.drawable.xianshang);
+					} else {
+						onoff.setImageResource(R.drawable.xianxia);
+					}
+					myGrabLabel.removeAllViews();
+					myGrabLabel.addView(onoff);
+
+					for (int i = 0, j = labels.length; i < j; i++) {
+						if (labels[i].equals("1")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhu);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("2")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.xiu);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("3")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.zhi);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("4")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.che);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("5")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.song);
+							myGrabLabel.addView(iv);
+						} else if (labels[i].equals("6")) {
+							ImageView iv = new ImageView(getActivity());
+							iv.setLayoutParams(lp);
+							iv.setImageResource(R.drawable.jia);
+							myGrabLabel.addView(iv);
+						}
+					}
+					/********************************************************************/
+
+				}
+			}
+		}
+
+	};
+
+	private void inProcessHttpClient(String uid) {
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(getActivity());
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+
+			HttpClient.post(getActivity(), Config.MY_ORDER_LIST_INPROCESS_URL,
+					se, new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							if (arg0 == 200) {
+								String str = new String(arg2);
+								System.out.println("我的订单 进行中数据返回  ---> " + str);
+								String msg = "";
+								try {
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									msg = job.getString("msg");
+									if (state.equals("success")) {
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("list");
+										ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
+										for (int i = 0, j = jArray.length(); i < j; i++) {
+											JSONObject jObject = jArray
+													.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("address", jObject
+													.getString("address"));
+											hashMap.put("endDate", jObject
+													.getString("endDate"));
+											hashMap.put("id",
+													jObject.getString("id"));
+											hashMap.put("method",
+													jObject.getString("method"));
+											hashMap.put("orderState", jObject
+													.getString("orderState"));
+											hashMap.put("price",
+													jObject.getString("price"));
+											hashMap.put("startDate", jObject
+													.getString("startDate"));
+											hashMap.put("synopsis", jObject
+													.getString("synopsis"));
+											hashMap.put("title",
+													jObject.getString("title"));
+											hashMap.put("type",
+													jObject.getString("type"));
+											hashMap.put("countdown", jObject
+													.getString("countdown"));
+											hashMap.put("category", jObject
+													.getString("category"));
+											hashMap.put("label",
+													jObject.getString("label"));
+
+											list.add(hashMap);
+										}
+										Message message = handler
+												.obtainMessage();
+										message.obj = list;
+										message.sendToTarget();
+
+									} else {
+										Toast.makeText(getActivity(), msg,
+												Toast.LENGTH_SHORT).show();
+									}
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							} else {
+								Toast.makeText(getActivity(), "获取进行中订单失败,请重试!",
+										Toast.LENGTH_SHORT).show();
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(getActivity(), "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.my_order_frag2_mypost:
+
+			break;
+		case R.id.my_order_frag2_mygrab:
+
+			break;
+		default:
+			break;
+		}
+	}
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/nearby_left_fragment_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:id="@+id/llllllllllllllllllllllllllllllllllllll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:visibility="visible" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#eeeeee" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="55dp" >
+
+                <TextView
+                    android:id="@+id/nearby_left_fragment_carttv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="80dp"
+                    android:text="购物车空空的~"
+                    android:textColor="#666666"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/nearby_left_fragment_cartprice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:background="@drawable/square_grey"
+                    android:gravity="center"
+                    android:paddingBottom="20dp"
+                    android:paddingLeft="40dp"
+                    android:paddingRight="40dp"
+                    android:paddingTop="20dp"
+                    android:text="￥ 0"
+                    android:textColor="#ffffff"
+                    android:textSize="13sp" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/llllllllllllllllllllllllllllllllllllll"
+            android:orientation="horizontal"
+            android:weightSum="3" >
+
+            <view.CustomListView
+                android:id="@+id/nearby_left_fragment_lv1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.00" >
+            </view.CustomListView>
+
+            <view.PinnedHeaderListView
+                android:id="@+id/nearby_left_fragment_lv2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2" >
+            </view.PinnedHeaderListView>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/nearby_left_fragment_cart"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/shopping_cart"
+            android:visibility="visible" />
+    </RelativeLayout>
+
+</LinearLayout>

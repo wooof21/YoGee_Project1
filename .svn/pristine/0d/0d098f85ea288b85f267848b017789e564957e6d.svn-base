@@ -1,0 +1,34 @@
+package com.youge.jobfinder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import view.ListViewForNearbyCommit;
+import adapter.CommitNearbyItemAdapter;
+import android.os.Bundle;
+
+public class CommitNearbyShopActivity extends BaseActivity {
+
+	private ListViewForNearbyCommit listview;
+	private CommitNearbyItemAdapter mAdapter;
+	private ArrayList<HashMap<String, String>> list;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_commit_nearby_shop);
+		findView();
+		initView();
+	}
+
+	private void findView() {
+		listview = (ListViewForNearbyCommit) findViewById(R.id.listView);
+		listview.setFocusable(false);
+	}
+
+	private void initView() {
+		list = new ArrayList<HashMap<String, String>>();
+		mAdapter = new CommitNearbyItemAdapter(this, list);
+		listview.setAdapter(mAdapter);
+	}
+}

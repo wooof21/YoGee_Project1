@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/intelligent_sorting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/intelligent_sorting_i"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/intelligent_sorting" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/intelligent_sorting_i"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:text="智能配需"
+            android:textColor="#515151"
+            android:textSize="13sp" />
+
+        <ImageView
+            android:id="@+id/intelligent_sorting_select"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/zhineng_select"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <!-- divider -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="5dp"
+        android:background="#eeeeee"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/zn_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/iiiiiiii"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/julizuijin" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iiiiiiii"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:text="距离最近"
+            android:textColor="#515151"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/zn_distance_select"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/zhineng_select"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <!-- divider -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="5dp"
+        android:background="#eeeeee" />
+
+    <RelativeLayout
+        android:id="@+id/zn_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/iiiiiii"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/chujiazuigao" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iiiiiii"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:text="出价最高"
+            android:textColor="#515151"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/zn_price_select"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/zhineng_select"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <!-- divider -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="5dp"
+        android:background="#eeeeee" />
+
+    <RelativeLayout
+        android:id="@+id/zn_latest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/iiiii"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/zuixinfabu" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iiiii"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:text="最新发布"
+            android:textColor="#515151"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/zn_latest_select"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/zhineng_select"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <!-- divider -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="5dp"
+        android:background="#eeeeee" />
+
+    <RelativeLayout
+        android:id="@+id/zn_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/iii"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/zhengzaipindan" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iii"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:text="正在拼单"
+            android:textColor="#515151"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/zn_share_select"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/zhineng_select"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#eeeeee" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:background="#d1d1d1" />
+
+            <TextView
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="2dp"
+                android:background="#d1d1d1" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

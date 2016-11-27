@@ -1,0 +1,88 @@
+package com.youge.jobfinder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import tools.PullToRefreshLayout;
+import tools.PullToRefreshLayout.OnRefreshListener;
+import view.ListViewForGrab;
+import view.PullableScrollView;
+import adapter.DiscoverMainNearbyItemAdapter;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+public class NearbyShopActivity extends BaseActivity implements
+		OnRefreshListener, OnClickListener {
+	private PullToRefreshLayout refresh;
+	private PullableScrollView sv;
+	private DiscoverMainNearbyItemAdapter mAdapter;
+	private ListViewForGrab listView;
+	private ArrayList<HashMap<String, String>> list, lvList;
+	private String title;
+	private TextView title_title, biaoqian_tv;
+	private ImageView back;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_nearby_shop);
+		findView();
+		initView();
+	}
+
+	/**
+	 * 根据ID查找控件
+	 */
+	public void findView() {
+		refresh = (PullToRefreshLayout) findViewById(R.id.refresh_view);
+		refresh.setOnRefreshListener(NearbyShopActivity.this);
+		listView = (ListViewForGrab) findViewById(R.id.listView);
+		title_title = (TextView) findViewById(R.id.title_title);
+		biaoqian_tv = (TextView) findViewById(R.id.biaoqian_tv);
+		back = (ImageView) findViewById(R.id.back);
+		back.setOnClickListener(this);
+		listView.setFocusable(false);
+		sv = (PullableScrollView) findViewById(R.id.sv);
+		sv.smoothScrollTo(0, 0);
+	}
+
+	/**
+	 * 初始化页面
+	 */
+	public void initView() {
+		title = getIntent().getStringExtra("title");
+		title_title.setText(title);
+		biaoqian_tv.setText(title);
+		lvList = new ArrayList<HashMap<String, String>>();
+		mAdapter = new DiscoverMainNearbyItemAdapter(this, lvList);
+		listView.setAdapter(mAdapter);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.back:
+			finish();
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onRefresh(PullToRefreshLayout pullToRefreshLayout) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoadMore(PullToRefreshLayout pullToRefreshLayout) {
+		// TODO Auto-generated method stub
+
+	}
+}

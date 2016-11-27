@@ -1,0 +1,444 @@
+/**
+ * 
+ * @param
+ */
+package discover;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+import view.MyImgScroll;
+import waterdroplv.WaterDropListView;
+import waterdroplv.WaterDropListView.IWaterDropListViewListener;
+import adapter.CreditMallMainAdapter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout.LayoutParams;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class CreditMallActivity extends BaseActivity implements
+		IWaterDropListViewListener{
+
+	private WaterDropListView wdlv;
+
+	private CreditMallMainAdapter adapter;
+
+	private ArrayList<View> adList;
+	private ArrayList<HashMap<String, String>> picList;
+	private ArrayList<HashMap<String, String>> filter, goods;
+	private HashMap<String, String> user;
+
+	private View view;
+	private int count, total;
+	private String uid;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.credit_mall_main);
+		initView();
+	}
+
+	private void initView(){
+		findViewById(R.id.back).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				finish();
+			}
+		});
+		wdlv = (WaterDropListView) findViewById(R.id.credit_mall_wdlv);
+		view = LayoutInflater.from(this).inflate(R.layout.credit_mall_item1,
+				null);
+		wdlv.setPullLoadEnable(true);
+//		wdlv.disableLoadMore(true);
+		wdlv.setWaterDropListViewListener(this);
+
+	}
+
+	private void getAd(){
+		total = 0;
+		count = 6;
+		filter = new ArrayList<HashMap<String,String>>();
+		goods = new ArrayList<HashMap<String,String>>();
+		user = new HashMap<String, String>();
+		getAdHttpClientPost("3");
+		if(new Tools().isUserLogin(this)){
+			uid = new Tools().getUserId(this);
+		}else{
+			uid = " ";
+		}
+		mallHttp(uid, "f");
+//		list1 = new ArrayList<HashMap<String, String>>();
+//		list2 = new ArrayList<HashMap<String, String>>();
+//		for(int i = 0; i < 4; i++){
+//			HashMap<String, String> hashMap = new HashMap<String, String>();
+//			list1.add(hashMap);
+//			list2.add(hashMap);
+//		}
+//		HashMap<String, String> map = new HashMap<String, String>();
+//		map.put("pic", "pic");
+//		map.put("credit", "140");
+//
+//		adapter = new CreditMallMainAdapter(this, view, map, list1, list2);
+//		wdlv.setAdapter(adapter);
+//		mallHttp(new Tools().getUserId(this));
+	}
+
+	private Handler handler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg){
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch(msg.what){
+				case 1:
+					MyImgScroll isv = (MyImgScroll) view
+							.findViewById(R.id.credit_mall_isv);
+					LinearLayout oval = (LinearLayout) view
+							.findViewById(R.id.credit_mall_vb);
+					isv.start(CreditMallActivity.this, adList, 3000, oval,
+							R.layout.ad_bottom_item, R.id.ad_item_v,
+							R.drawable.dot_focused, R.drawable.dot_normal);
+				break;
+				case 2:
+
+					break;
+				default:
+				break;
+			}
+		}
+
+	};
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+		getAd();		
+		adapter = new CreditMallMainAdapter(CreditMallActivity.this, view, user, filter, goods);
+		wdlv.setAdapter(adapter);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+	
+	private void mallHttp(String uid, final String type){
+		final CustomProgressDialog pd = CustomProgressDialog.createDialog(this);
+		JSONObject job = new JSONObject();
+		try{
+			job.put("userid", uid);
+			job.put("count", count+"");
+			job.put("total", total+"");
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(this, Config.CREDIT_MALL_MAIN, se, new AsyncHttpResponseHandler(){
+				
+				@Override
+				public void onSuccess(int arg0, Header[] arg1, byte[] arg2){
+					// TODO Auto-generated method stub
+					pd.dismiss();
+					String str = new String(arg2);
+					String message = "";
+					System.out.println("积分商城主页返回 ---> " + str);
+					try{
+						JSONObject result = new JSONObject(str);
+						String state = result.getString("state");
+						message = result.getString("msg");
+						if(state.equals("success")){
+							JSONObject data = result.getJSONObject("data");
+							JSONArray mallType = data.getJSONArray("malltype");
+							ArrayList<HashMap<String, String>> filterSingle = new ArrayList<HashMap<String,String>>();
+							for(int i=0,j=mallType.length();i<j;i++){
+								JSONObject type = mallType.optJSONObject(i);
+								HashMap<String, String> hashMap = new HashMap<String, String>();
+								hashMap.put("id", type.getString("id"));
+								hashMap.put("img", type.getString("img"));
+								hashMap.put("name", type.getString("name"));
+								
+								filterSingle.add(hashMap);
+							}
+							
+							//JSONObject user = data.getJSONObject("user");
+							CreditMallActivity.this.user.put("img", data.getString("userimg"));
+							CreditMallActivity.this.user.put("point", data.getString("userpoint"));
+							
+							JSONArray mall = data.getJSONArray("mall");
+							ArrayList<HashMap<String, String>> goodsSingle = new ArrayList<HashMap<String,String>>();
+							for(int i=0,j=mall.length();i<j;i++){
+								JSONObject job = mall.optJSONObject(i);
+								HashMap<String, String> hashMap = new HashMap<String, String>();
+								hashMap.put("integralmallId", job.getString("integralmallId"));
+								hashMap.put("integralmallName", job.getString("integralmallName"));
+								hashMap.put("integralmallPicture", job.getString("integralmallPicture"));
+								hashMap.put("integralmallPoint", job.getString("integralmallPoint"));
+								
+								goodsSingle.add(hashMap);
+							}
+							if(type.equals("f")){
+								filter.clear();
+								goods.clear();
+								filter.addAll(filterSingle);
+								goods.addAll(goodsSingle);
+							}else{
+								filter.clear();
+								filter.addAll(filterSingle);
+								goods.addAll(goodsSingle);
+							}
+							adapter.notifyDataSetChanged();
+//							Message msg = handler.obtainMessage();
+//							msg.what = 2;
+//							msg.sendToTarget();
+						}else{
+							Toast.makeText(CreditMallActivity.this, message, Toast.LENGTH_SHORT).show();
+						}
+					}catch(JSONException e){
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				@Override
+				public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3){
+					// TODO Auto-generated method stub
+					pd.dismiss();
+					// 网络断开时进行相关操作
+					Toast.makeText(CreditMallActivity.this,
+							"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+				}
+			});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 广告接口
+	 * 
+	 * @param type类型
+	 */
+	private void getAdHttpClientPost(final String type){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(CreditMallActivity.this);
+		adList = new ArrayList<View>();
+		picList = new ArrayList<HashMap<String, String>>();
+		JSONObject job = new JSONObject();
+		try{
+			job.put("type", type);
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(CreditMallActivity.this, Config.MAIN_AD_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int statusCode, Header[] headers,
+								byte[] responseBody){
+							// TODO Auto-generated method stub
+							if (statusCode == 200){ // 成功
+								// 将byte 转换 String
+								String str = new String(responseBody);
+								System.out.println("广告  + " + "type=" + type
+										+ " ---> " + str);
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									if (state.equals("success")){
+										JSONObject data = job
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("guanggao");
+										for(int i = 0, j = jArray.length(); i < j; i++){
+											JSONObject child = jArray
+													.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("img",
+													child.getString("img"));
+											hashMap.put("website",
+													child.getString("id"));
+											picList.add(hashMap);
+											ImageView iv = new ImageView(
+													CreditMallActivity.this);
+											iv.setScaleType(ScaleType.CENTER_CROP);
+											iv.setLayoutParams(new LinearLayout.LayoutParams(
+													LayoutParams.FILL_PARENT,
+													LayoutParams.FILL_PARENT));
+											ImageLoader
+													.getInstance()
+													.displayImage(
+															child.getString("img"),
+															iv);
+											final String website = child
+													.getString("id");
+											iv.setOnClickListener(new OnClickListener(){
+
+												@Override
+												public void onClick(View v){
+													// TODO Auto-generated
+													// method stub
+													System.out
+															.println("广告点击  website ---> "
+																	+ website);
+												}
+											});
+											adList.add(iv);
+										}
+										if (adList.size() != 0){
+											Message msg = handler
+													.obtainMessage();
+											msg.what = 1;
+											msg.sendToTarget();
+
+										}
+										pd.dismiss();
+
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									pd.dismiss();
+								}
+
+							}else{ // 提交失败
+								pd.dismiss();
+								Toast.makeText(CreditMallActivity.this,
+										"请求广告轮播失败!", Toast.LENGTH_SHORT).show();
+							}
+						}
+
+						@Override
+						public void onFailure(int statusCode, Header[] headers,
+								byte[] responseBody, Throwable error){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(CreditMallActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onRefresh(){
+		// TODO Auto-generated method stub
+		total = 0;
+		mallHttp(new Tools().getUserId(CreditMallActivity.this), "f");
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(1);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * handler 处理waterdroplistview刷新加载
+	 */
+	private Handler wdlvHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			super.handleMessage(msg);
+			switch(msg.what){
+				case 1:
+					wdlv.stopRefresh();
+				break;
+				case 2:
+					wdlv.stopLoadMore();
+				break;
+			}
+
+		}
+	};
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onLoadMore(){
+		// TODO Auto-generated method stub
+		total += count;
+		mallHttp(new Tools().getUserId(CreditMallActivity.this), "m");
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(2);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+}

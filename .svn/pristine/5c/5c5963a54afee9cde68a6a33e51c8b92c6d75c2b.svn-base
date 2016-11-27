@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:orientation="vertical"
+    android:background="#ffffff" >
+    
+    
+    <RelativeLayout 
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="vertical"
+        android:layout_marginTop="-2dp"
+        >
+        <TextView 
+            android:id="@+id/credit_mall_item_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长150分钟触电宝通话时长"
+            android:textColor="#101119"
+            android:textSize="11sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:padding="5dp"
+            />
+        <LinearLayout 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="5dp"
+            android:layout_alignParentBottom="true"
+            >
+            <TextView 
+                android:id="@+id/credit_mall_item_credit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1200"
+                android:textColor="#ff6530"
+                android:layout_gravity="center_vertical"
+                android:textSize="12sp"
+                />
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="积分"
+                android:textSize="11sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="#777777"
+                />
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/corner_green"
+                android:text="抽奖"
+                android:textSize="13sp"
+                android:textColor="#ffffff"
+                android:padding="2dp"
+                android:layout_marginLeft="50dp"
+                android:visibility="gone"
+                />
+            
+        </LinearLayout>
+    </RelativeLayout>
+    
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="120dp"
+	    >
+
+	    <ImageView
+	        android:id="@+id/credit_mall_item_pic"
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent"
+	        android:scaleType="fitXY"
+	        android:src="@drawable/default_goods" />
+	    <ImageView 
+	        android:layout_width="80dp"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/credit_mall_logo"
+	        android:layout_alignParentBottom="true"
+	        android:visibility="gone"
+	        />
+
+	</RelativeLayout>
+    
+</LinearLayout>

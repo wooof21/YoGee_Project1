@@ -1,0 +1,338 @@
+/**
+ * 
+ * @param
+ */
+package adapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import login.Login;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.youge.jobfinder.R;
+
+import discover.CreditMallActivity;
+import discover.CreditMallCategoryMainActivity;
+import discover.CreditMallExchangeListMain;
+
+import find.IntegralExplainActivity;
+
+import tools.Tools;
+import view.MGridView;
+import view.MyImgScroll;
+import view.RoundImageView;
+
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout.LayoutParams;
+
+/**
+ * 
+ * @param
+ */
+public class CreditMallMainAdapter extends BaseAdapter{
+
+	private Context context;
+	private ArrayList<HashMap<String, String>> adList;
+	private HashMap<String, String> map;
+	private ArrayList<HashMap<String, String>> list1, list2;
+	private ArrayList<String> pics;
+	private LayoutInflater lInflater;
+	private final int TYPE_ONE = 0, TYPE_TWO = 1, TYPE_THREE = 2,
+			TYPE_FOUR = 3;
+
+	private CreditMallGVAdapter cmAdapter1, cmAdapter2;
+
+	private ArrayList<View> view;
+	private View v;
+
+	/**
+	 * @param context
+	 * @param adList
+	 * @param map
+	 * @param list1
+	 * @param list2
+	 */
+	public CreditMallMainAdapter(Context context, View v,
+			HashMap<String, String> map,
+			ArrayList<HashMap<String, String>> list1,
+			ArrayList<HashMap<String, String>> list2){
+		super();
+		this.context = context;
+		// this.adList = adList;
+		this.v = v;
+		this.map = map;
+		this.list1 = list1;
+		this.list2 = list2;
+		this.lInflater = LayoutInflater.from(context);
+		pics = new ArrayList<String>();
+		for(int i = 0, j = list2.size(); i < j; i++){
+			pics.add(list2.get(i).get("integralmallPicture"));
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public int getCount(){
+		// TODO Auto-generated method stub
+		return 4;
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public int getViewTypeCount(){
+		// TODO Auto-generated method stub
+		return 4;
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public int getItemViewType(int position){
+		// TODO Auto-generated method stub
+		if (position == 0){
+			return TYPE_ONE;
+		}else if (position == 1){
+			return TYPE_TWO;
+		}else if (position == 2){
+			return TYPE_THREE;
+		}else{
+			return TYPE_FOUR;
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public Object getItem(int position){
+		// TODO Auto-generated method stub
+		if (position == 0){
+			return adList;
+		}else if (position == 1){
+			return map;
+		}else if (position == 2){
+			return list1;
+		}else if (position == 3){
+			return list2;
+		}else{
+			return null;
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public long getItemId(int position){
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent){
+		// TODO Auto-generated method stub
+		ViewHolder1 vh1 = new ViewHolder1();
+		ViewHolder2 vh2 = new ViewHolder2();
+		ViewHolder3 vh3 = new ViewHolder3();
+		ViewHolder4 vh4 = new ViewHolder4();
+		view = new ArrayList<View>();
+		int type = getItemViewType(position);
+		if (convertView == null){
+			if (type == TYPE_ONE){
+				convertView = v;
+				// convertView = lInflater.inflate(R.layout.credit_mall_item1,
+				// null);
+				// vh1.isv = (MyImgScroll) convertView
+				// .findViewById(R.id.credit_mall_isv);
+				// vh1.oval = (LinearLayout) convertView
+				// .findViewById(R.id.credit_mall_vb);
+				// if (adList.size() != 0){
+				// for(int i = 0, j = adList.size(); i < j; i++){
+				// System.out.println("ad list ---> " +
+				// adList.get(i).get("img"));
+				// ImageView iv = new ImageView(context);
+				// iv.setScaleType(ScaleType.CENTER_CROP);
+				// iv.setLayoutParams(new LinearLayout.LayoutParams(
+				// LayoutParams.FILL_PARENT,
+				// LayoutParams.FILL_PARENT));
+				// ImageLoader.getInstance().displayImage(adList.get(i).get("img"),
+				// iv);
+				// final String website = adList.get(i)
+				// .get("website");
+				// iv.setOnClickListener(new OnClickListener(){
+				//
+				// @Override
+				// public void onClick(View v){
+				// // TODO Auto-generated
+				// // method stub
+				// System.out
+				// .println("广告点击  website ---> "
+				// + website);
+				// }
+				// });
+				// view.add(iv);
+				// }
+				// vh1.isv.start(((CreditMallActivity) context), view, 3000,
+				// vh1.oval, R.layout.ad_bottom_item, R.id.ad_item_v,
+				// R.drawable.dot_focused, R.drawable.dot_normal);
+				// }
+				convertView.setTag(vh1);
+			}else if (type == TYPE_TWO){
+				convertView = lInflater.inflate(R.layout.credit_mall_item2,
+						null);
+				vh2.head = (RoundImageView) convertView
+						.findViewById(R.id.credit_mall_head);
+				vh2.credit = (TextView) convertView
+						.findViewById(R.id.credit_mall_credit);
+				vh2.how = (TextView) convertView
+						.findViewById(R.id.credit_mall_how);
+				vh2.record = (TextView) convertView
+						.findViewById(R.id.credit_mall_record);
+				convertView.setTag(vh2);
+			}else if (type == TYPE_THREE){
+				convertView = lInflater.inflate(R.layout.credit_mall_item3,
+						null);
+				convertView.setTag(vh3);
+			}else{
+				convertView = lInflater.inflate(R.layout.credit_mall_item4,
+						null);
+				vh4.gv = (MGridView) convertView
+						.findViewById(R.id.credit_mall_gv22);
+				cmAdapter2 = new CreditMallGVAdapter(context, list2, pics, "2");
+				vh4.gv.setAdapter(cmAdapter2);
+				convertView.setTag(vh4);
+			}
+		}else{
+			if (type == TYPE_ONE){
+				vh1 = (ViewHolder1) convertView.getTag();
+			}else if (type == TYPE_TWO){
+				vh2 = (ViewHolder2) convertView.getTag();
+				if (new Tools().isUserLogin(context)){
+					vh2.credit.setText(map.get("credit"));
+					vh2.credit.setText(map.get("point"));
+					ImageLoader.getInstance().displayImage(map.get("img"),
+							vh2.head);
+					vh2.how.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v){
+							// TODO Auto-generated method stub
+							System.out.println("how");
+							context.startActivity(new Intent(context, IntegralExplainActivity.class));
+						}
+					});
+					vh2.record.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v){
+							// TODO Auto-generated method stub
+							System.out.println("record");
+							context.startActivity(new Intent(context, CreditMallExchangeListMain.class));
+						}
+					});
+				}else{
+					vh2.head.setVisibility(View.GONE);
+					vh2.credit.setText("");
+					vh2.how.setText("登录后查看我的积分");
+					vh2.record.setText("立即登录");
+					vh2.record.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v){
+							// TODO Auto-generated method stub
+							// login
+							Intent intent = new Intent(context, Login.class);
+							intent.putExtra("from", "creditMall");
+							((CreditMallActivity) context).startActivityForResult(intent, 1001);
+						}
+					});
+				}
+
+			}else if (type == TYPE_THREE){
+				vh3 = (ViewHolder3) convertView.getTag();
+
+				vh3.gv = (MGridView) convertView
+						.findViewById(R.id.credit_mall_gv11);
+				cmAdapter1 = new CreditMallGVAdapter(context, list1, pics, "1");
+				vh3.gv.setAdapter(cmAdapter1);
+				vh3.gv.setOnItemClickListener(new OnItemClickListener(){
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id){
+						// TODO Auto-generated method stub
+						System.out.println("position1 ---> " + position);
+						Intent intent = new Intent(context, CreditMallCategoryMainActivity.class);
+						intent.putExtra("id", list1.get(position).get("id"));
+						intent.putExtra("name", list1.get(position).get("name"));
+						context.startActivity(intent);
+					}
+				});
+			}else{
+				vh4 = (ViewHolder4) convertView.getTag();
+				vh4.gv = (MGridView) convertView
+						.findViewById(R.id.credit_mall_gv22);
+				cmAdapter2 = new CreditMallGVAdapter(context, list2, pics, "2");
+				vh4.gv.setAdapter(cmAdapter2);
+				vh4.gv.setOnItemClickListener(new OnItemClickListener(){
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id){
+						// TODO Auto-generated method stub
+						System.out.println("position2 ---> " + position);
+					}
+				});
+			}
+		}
+
+		return convertView;
+	}
+
+	class ViewHolder1{
+		LinearLayout oval;//
+		MyImgScroll isv;
+	}
+
+	class ViewHolder2{
+		RoundImageView head;
+		TextView credit;
+		TextView how;
+		TextView record;
+	}
+
+	class ViewHolder3{
+		MGridView gv;
+	}
+
+	class ViewHolder4{
+		MGridView gv;
+	}
+}

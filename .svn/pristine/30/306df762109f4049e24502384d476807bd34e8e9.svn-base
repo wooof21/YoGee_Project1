@@ -1,0 +1,134 @@
+/**
+ * 
+ *@param
+ */
+package discover;
+
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class NearbyShopListItemDetail extends BaseActivity implements
+		OnClickListener {
+
+	private ImageView discover_main_lv_sub, discover_main_lv_add, shopping_che;
+	private TextView discover_main_lv_content, discover_main_price, title_tv,
+			shopping_count, discover_main_lv_item_startprice;
+	private String shoppingCount = "0";
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.nearby_listitem_detail);
+		findView();
+		initView();
+	}
+
+	private void findView() {
+		discover_main_lv_sub = (ImageView) findViewById(R.id.discover_main_lv_sub);
+		discover_main_lv_add = (ImageView) findViewById(R.id.discover_main_lv_add);
+		discover_main_lv_content = (TextView) findViewById(R.id.discover_main_lv_content);
+		shopping_che = (ImageView) findViewById(R.id.shopping_che);
+		discover_main_price = (TextView) findViewById(R.id.discover_main_price);
+		discover_main_lv_item_startprice = (TextView) findViewById(R.id.discover_main_lv_item_startprice);
+		title_tv = (TextView) findViewById(R.id.title_tv);
+		shopping_count = (TextView) findViewById(R.id.shopping_count);
+	}
+
+	private void initView() {
+		if ("0".equals(shoppingCount)) {
+			title_tv.setClickable(false);
+		}
+		shoppingCount = getIntent().getStringExtra("shoppingCount");
+		setLayout();
+		discover_main_lv_sub.setOnClickListener(this);
+		discover_main_lv_add.setOnClickListener(this);
+		title_tv.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.discover_main_lv_add:
+			if ("0".equals(discover_main_lv_content.getText().toString())) {
+				shoppingCount = "1";
+				discover_main_lv_content.setVisibility(View.VISIBLE);
+				discover_main_lv_sub.setVisibility(View.VISIBLE);
+				shopping_count.setVisibility(View.VISIBLE);
+			} else {
+				shoppingCount = Integer.parseInt(discover_main_lv_content
+						.getText().toString()) + 1 + "";
+			}
+			discover_main_lv_content.setText(shoppingCount);
+			shopping_count.setText(shoppingCount);
+			shopping_che.setImageResource(R.drawable.discover_green);
+			title_tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.nearby_list_item_green));
+			discover_main_price.setText(Integer.parseInt(shoppingCount)
+					* Integer.parseInt(discover_main_lv_item_startprice
+							.getText().toString()) + "");
+			title_tv.setClickable(true);
+			break;
+		case R.id.discover_main_lv_sub:
+			if ("1".equals(shoppingCount)) {
+				shoppingCount = "0";
+				discover_main_lv_content.setVisibility(View.GONE);
+				discover_main_lv_sub.setVisibility(View.GONE);
+				shopping_count.setVisibility(View.GONE);
+				discover_main_lv_content.setText(shoppingCount);
+				shopping_count.setText(shoppingCount);
+				shopping_che.setImageResource(R.drawable.discover_grey);
+				title_tv.setBackgroundDrawable(getResources().getDrawable(
+						R.drawable.nearby_list_item_grey));
+				discover_main_price.setText(shoppingCount);
+				title_tv.setClickable(false);
+			} else {
+				shoppingCount = Integer.parseInt(shoppingCount) - 1 + "";
+				discover_main_lv_content.setText(shoppingCount);
+				shopping_count.setText(shoppingCount);
+				discover_main_price.setText(Integer.parseInt(shoppingCount)
+						* Integer.parseInt(discover_main_lv_item_startprice
+								.getText().toString()) + "");
+			}
+			break;
+		case R.id.title_tv:
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	private void setLayout() {
+		if (!"0".equals(shoppingCount)) {
+			discover_main_lv_content.setVisibility(View.VISIBLE);
+			discover_main_lv_sub.setVisibility(View.VISIBLE);
+			shopping_count.setVisibility(View.VISIBLE);
+			discover_main_lv_content.setText(shoppingCount);
+			shopping_count.setText(shoppingCount);
+			shopping_che.setImageResource(R.drawable.discover_green);
+			title_tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.nearby_list_item_green));
+			discover_main_price.setText(Integer.parseInt(shoppingCount)
+					* Integer.parseInt(discover_main_lv_item_startprice
+							.getText().toString()) + "");
+			title_tv.setClickable(true);
+		}
+	}
+}

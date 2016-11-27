@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:orientation="horizontal"
+        android:weightSum="2" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <view.RoundImageView
+                android:id="@+id/order_choose_employee_lv_item_head"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/default_head" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_vertical" >
+
+                <TextView
+                    android:id="@+id/order_choose_employee_lv_item_name"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:gravity="center_horizontal"
+                    android:textColor="#101119"
+                    android:textSize="15sp"
+                    android:layout_gravity="center_vertical"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/order_choose_employee_lv_item_resume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="查看简历"
+                    android:textColor="#08c0c2"
+                    android:layout_gravity="center_vertical|right"
+                    android:textSize="13sp" 
+                    android:layout_marginLeft="5dp"/>
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="出价 ￥"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/order_choose_employee_lv_item_price"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="3dp"
+                android:text=""
+                android:textColor="#ff0033"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/order_choose_employee_lv_item_choose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/corner_yellow"
+                android:paddingBottom="4dp"
+                android:paddingLeft="9dp"
+                android:paddingRight="9dp"
+                android:paddingTop="4dp"
+                android:text="选择Ta"
+                android:textColor="#101119"
+                android:textSize="13sp" />
+            
+            <TextView 
+                android:id="@+id/order_choose_employee_lv_item_delete"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:text="删除"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/square_red"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

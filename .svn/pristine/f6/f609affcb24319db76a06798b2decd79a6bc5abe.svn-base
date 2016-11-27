@@ -1,0 +1,22 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_style</item>
+    </style>
+    <style name="CustomCheckboxThemeSmall" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_style_smll</item>
+    </style>
+
+    <style name="circlecheckbox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_circle</item>
+        <item name="android:maxWidth">20dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+    
+    <style name="circlecheckboxsmall" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_circle_small</item>
+        <item name="android:maxWidth">20dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+
+</resources>

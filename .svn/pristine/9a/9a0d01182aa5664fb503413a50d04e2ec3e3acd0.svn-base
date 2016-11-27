@@ -1,0 +1,91 @@
+/**
+ * 
+ *@param
+ */
+package adapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import view.MGridView;
+
+import com.youge.jobfinder.R;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+
+/**
+ * 
+ *@param
+ */
+public class CreditMallCategoryMainAdapter extends BaseAdapter{
+
+	private Context context;
+	private ArrayList<HashMap<String, String>> list;
+	private LayoutInflater lInflater;
+	private ArrayList<String> pics;
+	
+	
+	/**
+	 * @param context
+	 * @param list
+	 */
+	public CreditMallCategoryMainAdapter(Context context,
+			ArrayList<HashMap<String, String>> list){
+		super();
+		this.context = context;
+		this.list = list;
+		this.lInflater = LayoutInflater.from(context);
+		pics = new ArrayList<String>();
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public int getCount(){
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public Object getItem(int position){
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public long getItemId(int position){
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent){
+		// TODO Auto-generated method stub
+		if(convertView == null){
+			convertView = lInflater.inflate(R.layout.credit_mall_category_main_lv_item, null);
+		}
+		MGridView gv = (MGridView) convertView.findViewById(R.id.credit_mall_category_main_lv_item_gv);
+		CreditMallGVAdapter adapter = new CreditMallGVAdapter(context, list, pics, "2");
+		gv.setAdapter(adapter);
+		return convertView;
+	}
+
+}

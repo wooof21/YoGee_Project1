@@ -1,0 +1,262 @@
+/**
+ * 
+ * @param
+ */
+package fragment;
+
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.os.Message;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.TextView;
+
+import com.umeng.analytics.MobclickAgent;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class OrderListMainFragment extends Fragment implements OnClickListener {
+
+	private TextView myGrab, inProcess, myPost, underline1, underline2,
+			underline3;
+
+	private MyOrderMianWdLvFragment wdFragment; // 我的抢单 我的发单 lv
+	private MyOrderInProcessFragment ipFragment;
+
+	private FragmentManager fm;
+	
+	private String lat, lng;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(R.layout.my_order_main, null);
+		initView(view);
+
+		return view;
+	}
+	
+	/**
+	 * 包含Activity、Fragment或View的应用 1. MobclickAgent.onResume()
+	 * 和MobclickAgent.onPause() 方法是用来统计应用时长的(也就是Session时长,当然还包括一些其他功能) 2.
+	 * MobclickAgent.onPageStart() 和 MobclickAgent.onPageEnd() 方法是用来统计页面跳转的
+	 * 
+	 * 在仅有Activity的程序中，SDK 自动帮助开发者调用了 2. 中的方法，并把Activity
+	 * 类名作为页面名称统计。但是在包含fragment的程序中我们希望统计更详细的页面，所以需要自己调用方法做更详细的统计。
+	 * 首先，需要在程序入口处，调用 MobclickAgent.openActivityDurationTrack(false)
+	 * 禁止默认的页面统计方式，这样将不会再自动统计Activity。
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		MobclickAgent.openActivityDurationTrack(false);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+		MobclickAgent.onPageStart("OrderListMainFragment"); // 统计页面(仅有Activity的应用中SDK自动调用，不需要单独写)
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onPause(){
+		// TODO Auto-generated method stub
+		MobclickAgent.onPageEnd("OrderListMainFragment"); // （仅有Activity的应用中SDK自动调用，不需要单独写）保证
+													// onPageEnd 在onPause
+													// 之前调用,因为 onPause 中会保存信息
+		super.onPause();
+	}
+
+	private void initView(View root) {
+//		// 透明状态栏
+//		getActivity().getWindow().addFlags(
+//				WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//		// 透明导航栏
+//		getActivity().getWindow().addFlags(
+//				WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		myGrab = (TextView) root.findViewById(R.id.my_order_main_mygrab);
+		inProcess = (TextView) root.findViewById(R.id.my_order_main_inprocess);
+		myPost = (TextView) root.findViewById(R.id.my_order_main_mypost);
+		underline1 = (TextView) root
+				.findViewById(R.id.my_order_main_underline1);
+		underline2 = (TextView) root
+				.findViewById(R.id.my_order_main_underline2);
+		underline3 = (TextView) root
+				.findViewById(R.id.my_order_main_underline3);
+
+		myGrab.setOnClickListener(this);
+		inProcess.setOnClickListener(this);
+		myPost.setOnClickListener(this);
+		
+//		lat = getArguments().getString("lat");
+//		lng = getArguments().getString("lon");
+//		System.out.println("lat OrderListMainFragment---> " + lat);
+//		System.out.println("lng OrderListMainFragment---> " + lng);
+		
+		
+		fm = getFragmentManager();
+
+		setWdLvFragment();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		// 开启一个Fragment事务
+		FragmentTransaction transaction = fm.beginTransaction();
+		// transaction.setCustomAnimations(R.animator.slide_in_left,
+		// R.animator.slide_out_right);
+		// 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
+		hideAll(transaction);
+		switch (v.getId()) {
+		case R.id.my_order_main_mygrab:
+			setBgById(R.id.my_order_main_mygrab);
+			switchToUndone(transaction);
+			break;
+		case R.id.my_order_main_inprocess:
+			setBgById(R.id.my_order_main_inprocess);
+			switchToInProcess(transaction);
+			break;
+		case R.id.my_order_main_mypost:
+			setBgById(R.id.my_order_main_mypost);
+			switchToDone(transaction);
+			break;
+		default:
+			break;
+		}
+		transaction.commit();
+	}
+
+	private void setBgById(int id) {
+		switch (id) {
+		case R.id.my_order_main_mygrab:
+			underline1.setVisibility(View.VISIBLE);
+			underline2.setVisibility(View.INVISIBLE);
+			underline3.setVisibility(View.INVISIBLE);
+			break;
+		case R.id.my_order_main_inprocess:
+			underline2.setVisibility(View.VISIBLE);
+			underline1.setVisibility(View.INVISIBLE);
+			underline3.setVisibility(View.INVISIBLE);
+			break;
+		case R.id.my_order_main_mypost:
+			underline3.setVisibility(View.VISIBLE);
+			underline2.setVisibility(View.INVISIBLE);
+			underline1.setVisibility(View.INVISIBLE);
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * // API LEVEL 11 fragmentTransaction.setCustomAnimations(
+	 * R.animator.fragment_slide_left_enter,
+	 * R.animator.fragment_slide_right_exit);
+	 * 
+	 * // API LEVEL 13 // fragmentTransaction.setCustomAnimations( //
+	 * R.animator.fragment_slide_left_enter, //
+	 * R.animator.fragment_slide_left_exit, //
+	 * R.animator.fragment_slide_right_enter, //
+	 * R.animator.fragment_slide_right_exit);
+	 * 
+	 * @param
+	 */
+
+	private void setWdLvFragment() {
+		FragmentTransaction transaction = fm.beginTransaction();
+		// transaction.setCustomAnimations(R.animator.slide_in_left,
+		// R.animator.slide_out_right);
+		wdFragment = new MyOrderMianWdLvFragment();
+		getActivity().getIntent().putExtra("gOrp", "g");
+		transaction.add(R.id.order_list_frame, wdFragment);
+		transaction.commit();
+	}
+
+	private void hideAll(FragmentTransaction transaction) {
+		if (wdFragment != null) {
+			transaction.hide(wdFragment);
+		}
+		if (ipFragment != null) {
+			transaction.hide(ipFragment);
+		}
+
+	}
+
+	private void switchToUndone(FragmentTransaction transaction) {
+		if (wdFragment != null) {
+			transaction.show(wdFragment);
+		} else {
+			wdFragment = new MyOrderMianWdLvFragment();
+			getActivity().getIntent().putExtra("gOrp", "undone");
+			transaction.add(R.id.order_list_frame, wdFragment);
+		}
+		Message msg = MyOrderMianWdLvFragment.instance.handler.obtainMessage();
+		msg.obj = "undone";
+		msg.sendToTarget();
+	}
+
+	private void switchToDone(FragmentTransaction transaction) {
+		if (wdFragment != null) {
+			transaction.show(wdFragment);
+		} else {
+			wdFragment = new MyOrderMianWdLvFragment();
+			getActivity().getIntent().putExtra("gOrp", "done");
+			transaction.add(R.id.order_list_frame, wdFragment);
+		}
+		Message msg = MyOrderMianWdLvFragment.instance.handler.obtainMessage();
+		msg.obj = "done";
+		msg.sendToTarget();
+	}
+
+	private void switchToInProcess(FragmentTransaction transaction) {
+//		if (ipFragment != null) {
+//			transaction.show(ipFragment);
+//		} else {
+//			ipFragment = new MyOrderInProcessFragment();
+//			transaction.add(R.id.order_list_frame, ipFragment);
+//		}
+		
+		if (wdFragment != null) {
+			transaction.show(wdFragment);
+		} else {
+			wdFragment = new MyOrderMianWdLvFragment();
+			getActivity().getIntent().putExtra("gOrp", "inprocess");
+			transaction.add(R.id.order_list_frame, wdFragment);
+		}
+		Message msg = MyOrderMianWdLvFragment.instance.handler.obtainMessage();
+		msg.obj = "inprocess";
+		msg.sendToTarget();
+		
+	}
+
+}

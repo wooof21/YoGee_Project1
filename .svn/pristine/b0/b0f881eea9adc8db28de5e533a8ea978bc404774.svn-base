@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="#f5f5f5" >
+    <FrameLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#22b570" >
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/title_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="商家详情"
+            android:textColor="#ffffff"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="15dp"
+            android:text="提交"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/title" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+            
+                <LinearLayout 
+        android:id="@+id/nearby_shop_detail_top"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/title"
+        android:weightSum="4"
+        >
+        <FrameLayout 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            >
+            <view.RoundImageView 
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/default_head"
+                android:layout_gravity="center"
+                />
+        </FrameLayout>
+        
+        <LinearLayout 
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="商家标题"
+                android:textSize="15sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/llllllllllllllllllllllllllll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/nearby_shop_detail_top"
+        android:background="#ffffff"
+        android:weightSum="3"
+        >
+        <FrameLayout 
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点菜"
+                android:textSize="14sp"
+                android:textColor="#101119"
+                android:layout_gravity="center"
+                />
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#22b570"
+                android:layout_gravity="bottom"
+                />
+        </FrameLayout>
+        
+        <FrameLayout 
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点菜"
+                android:textSize="14sp"
+                android:textColor="#101119"
+                android:layout_gravity="center"
+                />
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#22b570"
+                android:layout_gravity="bottom"
+                android:visibility="gone"
+                />
+        </FrameLayout>
+        
+        <FrameLayout 
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点菜"
+                android:textSize="14sp"
+                android:textColor="#101119"
+                android:layout_gravity="center"
+                />
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#22b570"
+                android:layout_gravity="bottom"
+                android:visibility="gone"
+                />
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout 
+        android:id="@+id/nearby_shop_detail_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ></FrameLayout>
+    
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

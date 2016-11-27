@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#20000000"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/corner_white_storke"
+        android:layout_gravity="center"
+        android:orientation="vertical" >
+
+        <FrameLayout 
+            android:id="@+id/popup_sex_male"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="男"
+                android:textSize="14sp"
+                android:textColor="#101119"
+                android:paddingLeft="25dp"
+                />
+            
+            <ImageView 
+                android:id="@+id/popup_sex_male_iv"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/zhineng_select"
+                android:layout_gravity="center_vertical|right"
+                android:layout_marginRight="20dp"
+                android:visibility="gone"
+                />
+        </FrameLayout>
+        <TextView 
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#eeeeee"
+            />
+        <FrameLayout 
+            android:id="@+id/popup_sex_female"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            >
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="女"
+                android:textSize="14sp"
+                android:textColor="#101119"
+                android:paddingLeft="25dp"
+                />
+            
+            <ImageView 
+                android:id="@+id/popup_sex_female_iv"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/zhineng_select"
+                android:layout_gravity="center_vertical|right"
+                android:layout_marginRight="20dp"
+                android:visibility="gone"
+                />
+        </FrameLayout>
+        <TextView 
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#eeeeee"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2.01" >
+
+            <TextView
+                android:id="@+id/popup_sex_dismiss"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:text="取消"
+                android:textColor="#999999"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.01"
+                android:background="#eeeeee" />
+
+            <TextView
+                android:id="@+id/popup_sex_commit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:text="保存"
+                android:textColor="#22b570"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

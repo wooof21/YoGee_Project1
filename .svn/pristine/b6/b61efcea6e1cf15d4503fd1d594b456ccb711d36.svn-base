@@ -1,0 +1,28 @@
+/**
+ * 
+ *@param
+ */
+package discover;
+
+import android.os.Bundle;
+
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ *@param
+ */
+public class NearbyShopListItemDetail extends BaseActivity{
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.nearby_listitem_detail);
+	}
+}

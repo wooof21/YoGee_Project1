@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/location_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f5"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true" >
+
+    <FrameLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#22b570">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/back"
+            android:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="铭牌"
+            android:textColor="#ffffff"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/title_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="选择定位地址"
+            android:textColor="#ffffff"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="15dp"
+            android:text="完成"
+            android:textColor="#ffffff"
+            android:textSize="15sp" />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/f"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:layout_below="@id/title"
+        android:padding="10dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/corner_green_stroke"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:src="@drawable/search" />
+
+            <EditText
+                android:id="@+id/location_search"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:ems="14"
+                android:hint="输入地址,搜索周边订单"
+                android:padding="5dp"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
+    
+    <ListView
+        android:id="@+id/location_lv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_below="@id/f"
+        android:background="#f5f5f5" >
+    </ListView>
+
+    <LinearLayout 
+        android:layout_below="@id/location_lv"
+        android:id="@+id/location_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+        android:id="@+id/t"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/t"
+        android:layout_marginLeft="15dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:text="当前位置"
+        android:textColor="#888888"
+        android:textSize="16sp" />
+
+    <FrameLayout
+        android:id="@+id/ff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv"
+        android:background="#ffffff" >
+
+        <TextView
+            android:id="@+id/location_current_loc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:text=""
+            android:textColor="#101119"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/location_refresh"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="30dp"
+            android:src="@drawable/loc_refresh" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ff"
+        android:layout_marginLeft="15dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:text="历史位置"
+        android:textColor="#888888"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/location_addr1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvv"
+        android:background="#ffffff"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:text="暂无"
+        android:textColor="#101119"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/ttv"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/location_addr1"
+        android:background="#dddddd" />
+
+    <TextView
+        android:id="@+id/location_addr2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ttv"
+        android:background="#ffffff"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:text="暂无"
+        android:textColor="#101119"
+        android:textSize="15sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/location_addr2"
+        android:layout_marginTop="10dp"
+        android:background="#ffffff" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:text="启动时,自动定位到当前位置"
+            android:textColor="#101119"
+            android:layout_gravity="center_vertical"
+            android:textSize="15sp" />
+
+        <ToggleButton
+            android:id="@+id/loction_onoff"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/switch_btn"
+            android:checked="true"
+            android:text=""
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+    </LinearLayout>
+
+
+
+    <FrameLayout 
+        android:id="@+id/location_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#40000000"
+        android:visibility="gone"
+        ></FrameLayout>
+</RelativeLayout>

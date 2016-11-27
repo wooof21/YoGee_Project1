@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <view.MGridView
+        android:id="@+id/credit_mall_category_main_lv_item_gv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:numColumns="2"
+        android:horizontalSpacing="3dp"
+        android:verticalSpacing="3dp" >
+    </view.MGridView>
+
+</LinearLayout>

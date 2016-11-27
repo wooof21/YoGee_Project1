@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="lib" path="libs/alipaySDK-20150818.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/android-async-http-1.4.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/android-support-v4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/faceppsdk_min.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/GetuiExt-2.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/GetuiSDK2.6.4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/libammsdk.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/libpingpp-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/libray.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/MobCommons.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/MobLogCollector.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/MobTools.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/Msc.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/mta-sdk-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/nineoldandroids-2.4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/open_sdk_r5509.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/picasso-2.4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-Core-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-QQ-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-QZone-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-SinaWeibo-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-TencentWeibo-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-Wechat-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-Wechat-Core-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-Wechat-Favorite-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/ShareSDK-Wechat-Moments-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/SMSSDK-2.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/systembartint-1.0.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/umeng-analytics-v5.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/universal-image-loader-1.9.4-with-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/UPPayAssistEx.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/UPPayPluginEx.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/BaiduLBS_Android.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/Sunflower.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/BaiduTraceSDK_v2_1_1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/gson-2.2.1.jar"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>

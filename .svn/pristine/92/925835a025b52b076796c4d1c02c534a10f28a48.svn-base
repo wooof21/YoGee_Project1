@@ -1,0 +1,362 @@
+package com.youge.jobfinder;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import popup.ContentPopUpWindowSingleButton;
+import popup.PushPopUpWindow;
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.umeng.analytics.MobclickAgent;
+
+public class ServiceCentreActivity extends BaseActivity implements OnClickListener {
+	private LinearLayout problem_one, problem_two, problem_three,
+			problem_one_text, problem_two_text, problem_three_text, parent;
+	private ImageView problem_one_img, problem_two_img, problem_three_img,
+			back;
+	private Boolean click_one = false;
+	private Boolean click_two = false;
+	private Boolean click_three = false;
+	private registerReceiver receiver;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_service_centre);
+		findView();
+	}
+
+	/**
+	 * 根据ID查找空间
+	 */
+	private void findView() {
+		problem_one = (LinearLayout) findViewById(R.id.problem_one);
+		problem_two = (LinearLayout) findViewById(R.id.problem_two);
+		problem_three = (LinearLayout) findViewById(R.id.problem_three);
+		problem_one_text = (LinearLayout) findViewById(R.id.problem_one_text);
+		problem_two_text = (LinearLayout) findViewById(R.id.problem_two_text);
+		problem_three_text = (LinearLayout) findViewById(R.id.problem_three_text);
+		problem_one_img = (ImageView) findViewById(R.id.problem_one_img);
+		problem_two_img = (ImageView) findViewById(R.id.problem_two_img);
+		problem_three_img = (ImageView) findViewById(R.id.problem_three_img);
+		back = (ImageView) findViewById(R.id.back);
+		parent = (LinearLayout) findViewById(R.id.resume_edit_parent);
+
+		problem_one.setOnClickListener(this);
+		problem_two.setOnClickListener(this);
+		problem_three.setOnClickListener(this);
+		back.setOnClickListener(this);
+		problem_one_img.setBackgroundDrawable(getResources().getDrawable(
+				R.drawable.down));
+		problem_two_img.setBackgroundDrawable(getResources().getDrawable(
+				R.drawable.down));
+		problem_three_img.setBackgroundDrawable(getResources().getDrawable(
+				R.drawable.down));
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.problem_one:
+			statistics("order_question");
+			if (click_one) {
+				click_one = false;
+			} else {
+				click_one = true;
+			}
+			changeVisible(problem_one_text, problem_one_img, click_one);
+			break;
+		case R.id.problem_two:
+			statistics("payment_question");
+			if (click_two) {
+				click_two = false;
+			} else {
+				click_two = true;
+			}
+			changeVisible(problem_two_text, problem_two_img, click_two);
+			break;
+		case R.id.problem_three:
+			statistics("other_question");
+			if (click_three) {
+				click_three = false;
+			} else {
+				click_three = true;
+			}
+			changeVisible(problem_three_text, problem_three_img, click_three);
+			break;
+		case R.id.back:
+			statistics("non");
+			finish();
+			break;
+
+		default:
+			break;
+		}
+	}
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public void onBackPressed(){
+		// TODO Auto-generated method stub
+		super.onBackPressed();
+		statistics("non");
+		finish();
+	}
+	/**
+	 * 统计服务中心, 点击哪个问题
+	 * 
+	 *@param
+	 */
+	private void statistics(String q){
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("question", q);
+		MobclickAgent.onEvent(this, "service_center", map);
+	}
+
+	private void changeVisible(LinearLayout linearLayout, ImageView img,
+			Boolean click) {
+		if (click) {
+			linearLayout.setVisibility(View.VISIBLE);
+			img.setBackgroundDrawable(getResources().getDrawable(R.drawable.up));
+		} else {
+			linearLayout.setVisibility(View.GONE);
+			img.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.down));
+		}
+
+	}
+
+	/**
+	 * 注册广播
+	 * 
+	 */
+	private void registerReceiver() {
+		receiver = new registerReceiver();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("com.service.fresh");
+		registerReceiver(receiver, filter);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		registerReceiver();
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	protected void onStop(){
+		// TODO Auto-generated method stub
+		super.onStop();
+		unregisterReceiver(receiver);
+	}
+
+	/**
+	 * 接收广播，设置下拉刷新是否显示
+	 * 
+	 */
+	private PushPopUpWindow pp;
+	private PushPopUpWindow[] pps = new PushPopUpWindow[] { null, null };
+
+	protected class registerReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			if ("1".equals(new Tools().getNotificationType(context))
+					|| "2".equals(new Tools().getNotificationType
+
+					(context))) {
+				if (pps[0] != null && pps[0].isShowing()) {
+					pps[0].dismiss();
+				}
+				pp = new PushPopUpWindow(ServiceCentreActivity.this, parent,
+						new Tools().getNotificationText(context),
+						new Tools().getNotificationType(context), "ServiceCentreActivity");
+				pps[0] = pp;
+			} else if ("3".equals(new Tools().getNotificationType(context))) {
+				if (pps[0] != null && pps[0].isShowing()) {
+					pps[0].dismiss();
+				}
+				mandatoryExit(context);
+			} else {
+				NotificationManager nManager = (NotificationManager)
+
+				context.getSystemService
+
+				(context.NOTIFICATION_SERVICE);
+				Notification notification = new Notification();
+				notification.icon = R.drawable.logo;// 设置通知的图标
+				// 添加声音提示
+				notification.defaults = Notification.DEFAULT_SOUND;
+				// audioStreamType的值必须AudioManager中的值，代表着响铃的模式
+				notification.audioStreamType =
+
+				android.media.AudioManager.ADJUST_LOWER;
+				notification.defaults = Notification.DEFAULT_VIBRATE;
+				notification.flags = Notification.FLAG_AUTO_CANCEL;
+				long[] vibrate = { 0, 100, 200, 300 };
+				notification.vibrate = vibrate;
+
+				notification.tickerText = "找事吧"; // 显示在状态栏中的文字
+				PendingIntent pendingIntent = PendingIntent.getActivity(
+						context, 0, new Intent(), 0);
+				// 点击状态栏的图标出现的提示信息设置
+				notification.setLatestEventInfo(context, "找事吧", new Tools
+
+				().getNotificationText(context), pendingIntent);
+				nManager.notify(1000, notification);
+			}
+
+		}
+	}
+
+	/**
+	 * 用户在其他地方登陆
+	 */
+	private void mandatoryExit(Context context) {
+		String CID = new Tools().getCID(ServiceCentreActivity.this);
+		String notificationText = new Tools()
+				.getNotificationText(ServiceCentreActivity.this);
+		unBindAlias(new Tools().getUserId(ServiceCentreActivity.this),
+				new Tools().getCID(ServiceCentreActivity.this),
+				ServiceCentreActivity.this);
+		SharedPreferences sharedPre = ServiceCentreActivity.this
+				.getSharedPreferences("user", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPre.edit();
+
+		editor.clear();
+		editor.putString("cid", CID);
+		editor.putString("notificationText", notificationText);
+		editor.commit();
+		new ContentPopUpWindowSingleButton(ServiceCentreActivity.this, parent,
+				new Tools().getNotificationText(context));
+	}
+
+	/**
+	 * 绑定账户
+	 */
+	private void unBindAlias(String uid, String cid, Context context) {
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+			job.put("cid", cid);
+			job.put("type", "1");// 强制退出是0
+
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(context, Config.UN_BIND_ALIAS, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[]
+
+						arg1, byte[] arg2) {
+							if (arg0 == 200) {
+								String str = new String
+
+								(arg2);
+								System.out.println("解除绑定账户接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result =
+
+									new JSONObject(str);
+									String state =
+
+									result.getString("state");
+									message =
+
+									result.getString("msg");
+									if (state.equals
+
+									("success")) {
+										JSONObject
+
+										data = result
+
+										.getJSONObject("data");
+										Log.v("别人资料", data.toString());
+										String
+
+										results = data
+
+										.getString("result");
+										if
+
+										("0".equals(results)) {
+
+											Log.v("别人资料", "提交失败");
+										} else {
+
+											Log.v("别人资料", "提交成功");
+										}
+									}
+								} catch (JSONException e) {
+									e.printStackTrace
+
+									();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[]
+
+						arg1, byte[] arg2, Throwable
+
+						arg3) {
+						}
+					});
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+}

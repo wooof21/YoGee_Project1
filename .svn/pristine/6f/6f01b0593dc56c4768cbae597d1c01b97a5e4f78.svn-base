@@ -1,0 +1,246 @@
+/**
+ * 
+ * @param
+ */
+package discover;
+
+import tools.OnScrollListener;
+import tools.ScrollViewListener;
+import tools.Tools;
+import view.CustomScrollView;
+import view.PullableScrollView;
+import android.R.integer;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.AbsListView;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+import fragment.NearbyCallBack;
+import fragment.NearbyShopDetailFragmentLeft;
+import fragment.NearbyShopDetailFragmentMiddle;
+import fragment.NearbyShopDetailFragmentRight;
+
+/**
+ * 
+ * @param
+ */
+public class NearbyShopDetailActivity extends BaseActivity implements
+		OnClickListener, NearbyCallBack{
+
+	private ImageView back;
+	private PullableScrollView psv;
+	private LinearLayout top;
+	private FrameLayout frame1, frame2, frame3, replace;
+	private TextView underline1, underline2, underline3;
+
+	private NearbyShopDetailFragmentLeft leftFrag;
+	private NearbyShopDetailFragmentMiddle midFrag;
+	private NearbyShopDetailFragmentRight rightFrag;
+	private FragmentManager fm;
+	private boolean isCoverShow = true;
+	private int height;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		fm = getFragmentManager();
+		if (savedInstanceState != null){
+			leftFrag = (NearbyShopDetailFragmentLeft) fm
+					.findFragmentByTag("leftFragment");
+			midFrag = (NearbyShopDetailFragmentMiddle) fm
+					.findFragmentByTag("midFragment");
+			rightFrag = (NearbyShopDetailFragmentRight) fm
+					.findFragmentByTag("rightFragment");
+		}
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.nearby_shop_detail_main);
+		initView();
+	}
+
+	private void initView(){
+		back = (ImageView) findViewById(R.id.back);
+		psv = (PullableScrollView) findViewById(R.id.nearby_shop_detail_main_sv);
+		top = (LinearLayout) findViewById(R.id.nearby_shop_detail_main_top);
+		frame1 = (FrameLayout) findViewById(R.id.nearby_shop_detail_main_frame1);
+		frame2 = (FrameLayout) findViewById(R.id.nearby_shop_detail_main_frame2);
+		frame3 = (FrameLayout) findViewById(R.id.nearby_shop_detail_main_frame3);
+		replace = (FrameLayout) findViewById(R.id.nearby_shop_detail_main_frame);
+		underline1 = (TextView) findViewById(R.id.nearby_shop_detail_main_underline1);
+		underline2 = (TextView) findViewById(R.id.nearby_shop_detail_main_underline2);
+		underline3 = (TextView) findViewById(R.id.nearby_shop_detail_main_underline3);
+
+		back.setOnClickListener(this);
+		frame1.setOnClickListener(this);
+		frame2.setOnClickListener(this);
+		frame3.setOnClickListener(this);
+		psv.smoothScrollTo(0, 0);
+
+		// LayoutParams lp = (LayoutParams) psv.getLayoutParams();
+		// lp.height = new Tools().getScreenHeight(this);
+		// psv.setLayoutParams(lp);
+		height = new Tools().getScreenHeight(this) - Tools.dip2px(this, 170);
+		switchToLeft();
+
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onClick(View v){
+		// TODO Auto-generated method stub
+		switch(v.getId()){
+			case R.id.back:
+				finish();
+			break;
+			case R.id.nearby_shop_detail_main_frame1:
+				setUnderLine(R.id.nearby_shop_detail_main_frame1);
+				switchToLeft();
+			break;
+			case R.id.nearby_shop_detail_main_frame2:
+				setUnderLine(R.id.nearby_shop_detail_main_frame2);
+				switchToMid();
+			break;
+			case R.id.nearby_shop_detail_main_frame3:
+				setUnderLine(R.id.nearby_shop_detail_main_frame3);
+				switchToRight();
+			break;
+			default:
+			break;
+		}
+	}
+
+	private void switchToLeft(){
+		FragmentTransaction transaction = fm.beginTransaction();
+		transaction.addToBackStack(null);
+		hideAll(transaction);
+		if (leftFrag != null){
+			transaction.show(leftFrag);
+		}else{
+			leftFrag = new NearbyShopDetailFragmentLeft();
+			Bundle b = new Bundle();
+			b.putInt("height", height);
+			leftFrag.setArguments(b);
+			transaction.add(R.id.nearby_shop_detail_main_frame, leftFrag,
+					"leftFragment");
+		}
+		transaction.commit();
+	}
+
+	private void switchToMid(){
+		FragmentTransaction transaction = fm.beginTransaction();
+		transaction.addToBackStack(null);
+		hideAll(transaction);
+		if (midFrag != null){
+			transaction.show(midFrag);
+		}else{
+			midFrag = new NearbyShopDetailFragmentMiddle();
+			transaction.add(R.id.nearby_shop_detail_main_frame, midFrag,
+					"midFragment");
+		}
+		transaction.commit();
+	}
+
+	private void switchToRight(){
+		FragmentTransaction transaction = fm.beginTransaction();
+		transaction.addToBackStack(null);
+		hideAll(transaction);
+		if (rightFrag != null){
+			transaction.show(rightFrag);
+		}else{
+			rightFrag = new NearbyShopDetailFragmentRight();
+			transaction.add(R.id.nearby_shop_detail_main_frame, rightFrag,
+					"rightFragment");
+		}
+		transaction.commit();
+	}
+
+	private void hideAll(FragmentTransaction transaction){
+		if (leftFrag != null){
+			transaction.hide(leftFrag);
+		}
+		if (midFrag != null){
+			transaction.hide(midFrag);
+		}
+		if (rightFrag != null){
+			transaction.hide(rightFrag);
+		}
+	}
+
+	private void setUnderLine(int id){
+		underline1.setVisibility(View.INVISIBLE);
+		underline2.setVisibility(View.INVISIBLE);
+		underline3.setVisibility(View.INVISIBLE);
+		switch(id){
+			case R.id.nearby_shop_detail_main_frame1:
+				underline1.setVisibility(View.VISIBLE);
+			break;
+			case R.id.nearby_shop_detail_main_frame2:
+				underline2.setVisibility(View.VISIBLE);
+			break;
+			case R.id.nearby_shop_detail_main_frame3:
+				underline3.setVisibility(View.VISIBLE);
+			break;
+			default:
+			break;
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void scrollTo(int y){
+		// TODO Auto-generated method stub
+		psv.smoothScrollTo(0, y);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public boolean isCoverShow(){
+		// TODO Auto-generated method stub
+		return isCoverShow;
+	}
+}

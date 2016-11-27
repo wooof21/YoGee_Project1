@@ -1,0 +1,98 @@
+/**
+ * 
+ * @param
+ */
+package model;
+
+/**
+ * 
+ * @param
+ */
+public class NearbyRightLvItemModel{
+
+	private int picId;
+	private String category;
+	private String title;
+	private String monthlySell;
+	private String price;
+	private boolean isPlus;
+	private boolean isChoose;
+
+	/**
+	 * @param picId
+	 * @param category
+	 * @param title
+	 * @param monthlySell
+	 * @param price
+	 * @param isPlus
+	 * @param isChoose
+	 */
+	public NearbyRightLvItemModel(int picId, String category, String title,
+			String monthlySell, String price, boolean isPlus, boolean isChoose){
+		super();
+		this.picId = picId;
+		this.category = category;
+		this.title = title;
+		this.monthlySell = monthlySell;
+		this.price = price;
+		this.isPlus = isPlus;
+		this.isChoose = isChoose;
+	}
+
+	public int getPicId(){
+		return picId;
+	}
+
+	public void setPicId(int picId){
+		this.picId = picId;
+	}
+
+	public String getCategory(){
+		return category;
+	}
+
+	public void setCategory(String category){
+		this.category = category;
+	}
+
+	public String getTitle(){
+		return title;
+	}
+
+	public void setTitle(String title){
+		this.title = title;
+	}
+
+	public String getMonthlySell(){
+		return monthlySell;
+	}
+
+	public void setMonthlySell(String monthlySell){
+		this.monthlySell = monthlySell;
+	}
+
+	public String getPrice(){
+		return price;
+	}
+
+	public void setPrice(String price){
+		this.price = price;
+	}
+
+	public boolean isPlus(){
+		return isPlus;
+	}
+
+	public void setPlus(boolean isPlus){
+		this.isPlus = isPlus;
+	}
+
+	public boolean isChoose(){
+		return isChoose;
+	}
+
+	public void setChoose(boolean isChoose){
+		this.isChoose = isChoose;
+	}
+
+}

@@ -1,0 +1,691 @@
+/**
+ * 
+ * @param
+ */
+package com.youge.jobfinder.activity;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import popup.ContentPopUpWindowSingleButton;
+import popup.PushPopUpWindow;
+import tools.Config;
+import tools.Exit;
+import tools.HttpClient;
+import tools.Tools;
+import adapter.LocationLVItemAdapter;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+import application.MyApplication;
+
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.core.SearchResult.ERRORNO;
+import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
+import com.baidu.mapapi.search.poi.PoiCitySearchOption;
+import com.baidu.mapapi.search.poi.PoiDetailResult;
+import com.baidu.mapapi.search.poi.PoiResult;
+import com.baidu.mapapi.search.poi.PoiSearch;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.LocationService;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class LocationMainActivity extends BaseActivity implements OnClickListener {
+
+	private ImageView back, refresh;
+	private TextView done, currentLoc, hisAddr1, hisAddr2;
+	private EditText search;
+	private ToggleButton tb;
+	private ListView lv;
+	private FrameLayout frame;
+
+	private String city;
+
+	private PoiSearch mPoiSearch;
+
+	private LocationLVItemAdapter adapter;
+	private ArrayList<HashMap<String, String>> list;
+
+	private String lat, lon, lat1, lon1, lat2, lon2;
+	private SharedPreferences sharedPre;
+	private Editor editor;
+	private String describe, describe1, describe2;
+	private registerReceiver receiver;
+	private RelativeLayout parent;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_location_main);//
+		initView();
+
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		//registerReceiver();
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				initLoc();
+			}
+		}, 500);
+	}
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	/***
+	 * Stop location service
+	 */
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		//unregisterReceiver(receiver);
+		try {
+			locationService.unregisterListener(mListener); // 注销掉监听
+			locationService.stop(); // 停止定位服务
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		super.onStop();
+	}
+
+	private void initView() {// 透明状态栏
+		// getWindow()
+		// .addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		// // 透明导航栏
+		// getWindow().addFlags(
+		// WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		Exit.getInstance().addActivity(this);
+		back = (ImageView) findViewById(R.id.back);
+		done = (TextView) findViewById(R.id.title_tv);
+		search = (EditText) findViewById(R.id.location_search);
+		currentLoc = (TextView) findViewById(R.id.location_current_loc);
+		refresh = (ImageView) findViewById(R.id.location_refresh);
+		hisAddr1 = (TextView) findViewById(R.id.location_addr1);
+		hisAddr2 = (TextView) findViewById(R.id.location_addr2);
+		tb = (ToggleButton) findViewById(R.id.loction_onoff);
+		lv = (ListView) findViewById(R.id.location_lv);
+		parent = (RelativeLayout) findViewById(R.id.location_parent);
+		frame = (FrameLayout) findViewById(R.id.location_frame);
+
+		city = getIntent().getExtras().getString("city");
+		list = new ArrayList<HashMap<String, String>>();
+		adapter = new LocationLVItemAdapter(this, list);
+		lv.setAdapter(adapter);
+
+		sharedPre = this.getSharedPreferences("user", Context.MODE_PRIVATE);
+		editor = sharedPre.edit();
+		if (sharedPre.getString("autoLoc", "").equals("auto")) {
+			tb.setChecked(true);
+		} else {
+			tb.setChecked(false);
+		}
+
+		if (!sharedPre.getString("hisAddr1", "").equals("")) {
+			hisAddr1.setText(sharedPre.getString("hisAddr1", ""));
+			describe1 = sharedPre.getString("hisAddr1", "");
+			lat1 = sharedPre.getString("lat1", "");
+			lon1 = sharedPre.getString("lon1", "");
+		}
+		if (!sharedPre.getString("hisAddr2", "").equals("")) {
+			hisAddr2.setText(sharedPre.getString("hisAddr2", ""));
+			describe2 = sharedPre.getString("hisAddr2", "");
+			lat2 = sharedPre.getString("lat2", "");
+			lon2 = sharedPre.getString("lon2", "");
+		}
+
+		mPoiSearch = PoiSearch.newInstance();
+		mPoiSearch
+				.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+
+					@Override
+					public void onGetPoiResult(PoiResult arg0) {
+						// TODO Auto-generated method stub
+						try {
+							if (arg0.error == ERRORNO.NO_ERROR) {
+								list.clear();
+								for (int i = 0, j = arg0.getAllPoi().size(); i < j; i++) {
+									HashMap<String, String> hashMap = new HashMap<String, String>();
+									hashMap.put("name",
+											arg0.getAllPoi().get(i).name);
+									hashMap.put("city",
+											arg0.getAllPoi().get(i).city);
+									hashMap.put("address", arg0.getAllPoi()
+											.get(i).address);
+									hashMap.put(
+											"lat",
+											""
+													+ arg0.getAllPoi().get(i).location.latitude);
+									hashMap.put(
+											"lon",
+											""
+													+ arg0.getAllPoi().get(i).location.longitude);
+
+									list.add(hashMap);
+								}
+								Message msg = handler.obtainMessage();
+								msg.what = 2;
+								msg.sendToTarget();
+							} else {
+								showToast(arg0.error);
+							}
+						} catch (Exception e) {
+							System.out.println(e);
+						}
+					}
+
+					@Override
+					public void onGetPoiDetailResult(PoiDetailResult arg0) {
+						// TODO Auto-generated method stub
+						if (arg0.error != SearchResult.ERRORNO.NO_ERROR) {
+							// 详情检索失败
+							// result.error请参考SearchResult.ERRORNO
+						} else {
+							// 检索成功
+						}
+
+					}
+				});
+
+		back.setOnClickListener(this);
+		done.setOnClickListener(this);
+		refresh.setOnClickListener(this);
+		hisAddr1.setOnClickListener(this);
+		hisAddr2.setOnClickListener(this);
+		tb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked) {
+					editor.putString("autoLoc", "auto");//
+				} else {
+					editor.putString("autoLoc", "off");
+				}
+				editor.commit();
+			}
+		});
+		search.addTextChangedListener(new TextWatcher() {//
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				System.out.println("s ---> " + s.toString());
+				if (s.toString().length() != 0) {
+					Message msg = handler.obtainMessage();
+					msg.what = 1;
+					msg.obj = s.toString();
+					msg.sendToTarget();
+				}
+			}
+		});
+	}
+
+	private Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case 1:
+				mPoiSearch.searchInCity((new PoiCitySearchOption()).city(city)
+						.keyword((String) msg.obj).pageCapacity(10));
+				// ll.setVisibility(View.GONE);
+				lv.setVisibility(View.VISIBLE);
+				break;
+			case 3:
+				System.out.println("ma le ge bi de");
+				currentLoc.setText((String) msg.obj);
+				locationService.unregisterListener(mListener);
+				locationService.stop();
+				break;
+			case 2:
+				adapter.notifyDataSetChanged();
+				lv.setOnItemClickListener(new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						// TODO Auto-generated method stub
+						describe = list.get(position).get("name");
+						lat = list.get(position).get("lat");
+						lon = list.get(position).get("lon");
+						currentLoc.setText(describe);
+						System.out.println("poi loc ---> " + describe);
+						System.out.println("poi lat ---> " + lat);
+						System.out.println("poi lon ---> " + lon);
+						lv.setVisibility(View.GONE);
+					}
+				});
+
+				break;
+			default:
+				break;
+			}
+		}
+
+	};
+	private Handler mlgbdHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			System.out.println("ma le ge bi de");
+			currentLoc.setText((String) msg.obj);
+			locationService.unregisterListener(mListener);
+			locationService.stop();
+		}
+
+	};
+	private LocationService locationService;
+
+	private void showToast(SearchResult.ERRORNO id) {
+		if (id == ERRORNO.AMBIGUOUS_KEYWORD) {
+			Toast.makeText(this, "检索词有岐义!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.AMBIGUOUS_ROURE_ADDR) {
+			Toast.makeText(this, "检索地址有岐义!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.KEY_ERROR) {
+			Toast.makeText(this, "检索词有误!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.NETWORK_ERROR) {
+			Toast.makeText(this, "网络错误!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.NETWORK_TIME_OUT) {
+			Toast.makeText(this, "网络超时!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.PERMISSION_UNFINISHED) {
+			Toast.makeText(this, "授权未完成!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.RESULT_NOT_FOUND) {
+			Toast.makeText(this, "没有找到检索结果!", Toast.LENGTH_SHORT).show();
+		} else if (id == ERRORNO.ST_EN_TOO_NEAR) {
+			Toast.makeText(this, "起终点太近!", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.back:
+			setResult(RESULT_CANCELED);
+			finish();
+			break;
+		case R.id.title_tv:
+			editor.putString("hisAddr2", sharedPre.getString("hisAddr1", ""));
+			editor.putString("lat2", sharedPre.getString("lat1", ""));
+			editor.putString("lon2", sharedPre.getString("lon1", ""));
+			editor.putString("hisAddr1", describe);
+			editor.putString("lat1", lat);
+			editor.putString("lon1", lon);
+			editor.commit();
+
+			Intent intent = getIntent();
+			intent.putExtra("lat", lat);
+			intent.putExtra("lon", lon);
+			intent.putExtra("name", describe);
+			setResult(RESULT_OK, intent);
+			finish();
+			break;
+		case R.id.location_refresh:
+			roate(refresh);
+			frame.setVisibility(View.VISIBLE);
+			new Handler().postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					initLoc();
+					frame.setVisibility(View.GONE);
+					refresh.clearAnimation();
+				}
+			}, 2900);
+			break;
+		case R.id.location_addr1:
+			if (!sharedPre.getString("hisAddr1", "").equals("")) {
+				currentLoc.setText(sharedPre.getString("hisAddr1", ""));
+				lat = lat1;
+				lon = lon1;
+				describe = describe1;
+
+				Intent intent1 = getIntent();
+				intent1.putExtra("lat", lat);
+				intent1.putExtra("lon", lon);
+				intent1.putExtra("name", describe);
+				setResult(RESULT_OK, intent1);
+				finish();
+			}
+			break;
+		case R.id.location_addr2:
+			if (!sharedPre.getString("hisAddr2", "").equals("")) {
+				currentLoc.setText(sharedPre.getString("hisAddr2", ""));
+				lat = lat2;
+				lon = lon2;
+				describe = describe2;
+
+				Intent intent2 = getIntent();
+				intent2.putExtra("lat", lat);
+				intent2.putExtra("lon", lon);
+				intent2.putExtra("name", describe);
+				setResult(RESULT_OK, intent2);
+				finish();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void roate(View view) {
+		RotateAnimation animation = new RotateAnimation(0f, -360f,
+				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+				0.5f);
+		animation.setDuration(3000);// 设置动画持续时间
+		animation.setRepeatCount(6);// 设置重复次数
+		animation.setRepeatMode(Animation.REVERSE);
+		animation.setFillAfter(true);// 动画执行完后是否停留在执行完的状态
+		LinearInterpolator lin = new LinearInterpolator();
+		animation.setInterpolator(lin);
+		/** 开始动画 */
+		view.startAnimation(animation);
+	}
+
+	private void initLoc() {
+		// -----------location config ------------
+		locationService = ((MyApplication) getApplication()).locationService;
+		locationService.setLocationOption(locationService
+				.getDefaultLocationClientOption());
+		// 获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
+		locationService.registerListener(mListener);
+		locationService.start();// 定位SDK
+		// start之后会默认发起一次定位请求，开发者无须判断isstart并主动调用request
+
+	}
+
+	private BDLocationListener mListener = new BDLocationListener() {
+
+		@Override
+		public void onReceiveLocation(BDLocation arg0) {
+			// TODO Auto-generated method stub
+			lat = "" + arg0.getLatitude();
+			lon = "" + arg0.getLongitude();
+			describe = arg0.getLocationDescribe() + "(" + (arg0.getDistrict() + arg0.getStreet()) + "...)";
+			city = arg0.getCity();
+			Message msg = handler.obtainMessage();
+			msg.what = 3;
+			msg.obj = describe;
+			msg.sendToTarget();
+			System.out.println("lat ---> " + lat);
+			System.out.println("lon ---> " + lon);
+			System.out.println("des ---> " + describe);
+			// System.out.println("error ---> " + arg0.getLocType());
+			// System.out.println("District ---> " + arg0.getDistrict());
+			// System.out.println("Street ---> " + arg0.getStreet());
+			// System.out.println("getStreetNumber ---> " +
+			// arg0.getStreetNumber());
+			// System.out.println("address ---> " +
+			// arg0.getAddress().streetNumber);
+			// System.out.println("addressStr ---> " + arg0.getAddrStr());
+			// System.out.println("getBuildingID ---> " + arg0.getBuildingID());
+			// System.out.println("getBuildingName ---> " +
+			// arg0.getBuildingName());
+			// System.out.println("getFloor ---> " + arg0.getFloor());
+		}
+
+	};
+
+	/**
+	 * 注册广播
+	 * 
+	 */
+	private void registerReceiver() {
+		receiver = new registerReceiver();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("com.service.fresh");
+		registerReceiver(receiver, filter);
+	}
+
+	/**
+	 * 接收广播，设置下拉刷新是否显示
+	 * 
+	 */
+	private PushPopUpWindow pp;
+	private PushPopUpWindow[] pps = new PushPopUpWindow[] { null, null };
+
+	protected class registerReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			if ("1".equals(new Tools().getNotificationType(context))
+					|| "2".equals(new Tools().getNotificationType
+
+					(context))) {
+				if (pps[0] != null && pps[0].isShowing()) {
+					pps[0].dismiss();
+				}
+				pp = new PushPopUpWindow(LocationMainActivity.this, parent,
+						new Tools().getNotificationText(context),
+						new Tools().getNotificationType(context), "LocationMainActivity");
+				pps[0] = pp;
+			} else if ("3".equals(new Tools().getNotificationType(context))) {
+				if (pps[0] != null && pps[0].isShowing()) {
+					pps[0].dismiss();
+				}
+				mandatoryExit(context);
+			} else {
+				NotificationManager nManager = (NotificationManager)
+
+				context.getSystemService
+
+				(context.NOTIFICATION_SERVICE);
+				Notification notification = new Notification();
+				notification.icon = R.drawable.logo;// 设置通知的图标
+				// 添加声音提示
+				notification.defaults = Notification.DEFAULT_SOUND;
+				// audioStreamType的值必须AudioManager中的值，代表着响铃的模式
+				notification.audioStreamType =
+
+				android.media.AudioManager.ADJUST_LOWER;
+				notification.defaults = Notification.DEFAULT_VIBRATE;
+				notification.flags = Notification.FLAG_AUTO_CANCEL;
+				long[] vibrate = { 0, 100, 200, 300 };
+				notification.vibrate = vibrate;
+
+				notification.tickerText = "找事吧"; // 显示在状态栏中的文字
+				PendingIntent pendingIntent = PendingIntent.getActivity(
+						context, 0, new Intent(), 0);
+				// 点击状态栏的图标出现的提示信息设置
+				notification.setLatestEventInfo(context, "找事吧", new Tools
+
+				().getNotificationText(context), pendingIntent);
+				nManager.notify(1000, notification);
+			}
+
+		}
+	}
+
+	/**
+	 * 用户在其他地方登陆
+	 */
+	private void mandatoryExit(Context context) {
+		String CID = new Tools().getCID(LocationMainActivity.this);
+		String notificationText = new Tools()
+				.getNotificationText(LocationMainActivity.this);
+		unBindAlias(new Tools().getUserId(LocationMainActivity.this),
+				new Tools().getCID(LocationMainActivity.this),
+				LocationMainActivity.this);
+		SharedPreferences sharedPre = LocationMainActivity.this
+				.getSharedPreferences("user", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPre.edit();
+
+		editor.clear();
+		editor.putString("cid", CID);
+		editor.putString("notificationText", notificationText);
+		editor.commit();
+		new ContentPopUpWindowSingleButton(LocationMainActivity.this, parent,
+				new Tools().getNotificationText(context));
+	}
+
+	/**
+	 * 绑定账户
+	 */
+	private void unBindAlias(String uid, String cid, Context context) {
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+			job.put("cid", cid);
+			job.put("type", "1");// 强制退出是0
+
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(context, Config.UN_BIND_ALIAS, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[]
+
+						arg1, byte[] arg2) {
+							if (arg0 == 200) {
+								String str = new String
+
+								(arg2);
+								System.out.println("解除绑定账户接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result =
+
+									new JSONObject(str);
+									String state =
+
+									result.getString("state");
+									message =
+
+									result.getString("msg");
+									if (state.equals
+
+									("success")) {
+										JSONObject
+
+										data = result
+
+										.getJSONObject("data");
+										Log.v("别人资料", data.toString());
+										String
+
+										results = data
+
+										.getString("result");
+										if
+
+										("0".equals(results)) {
+
+											Log.v("别人资料", "提交失败");
+										} else {
+
+											Log.v("别人资料", "提交成功");
+										}
+									}
+								} catch (JSONException e) {
+									e.printStackTrace
+
+									();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[]
+
+						arg1, byte[] arg2, Throwable
+
+						arg3) {
+						}
+					});
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

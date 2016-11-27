@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <!-- title -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:weightSum="2" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1.4"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/my_order_frag2_mypost_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="我需要 • "
+                android:textColor="#287450"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/my_order_frag2_mypost_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:orientation="horizontal" >
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 时间 -->
+
+        <TextView
+            android:id="@+id/my_order_inprocess_item_what"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:background="@drawable/corner_blue_stroke"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="我的发单"
+            android:textColor="#2d90ff"
+            android:textSize="14sp" />
+        <!-- 时间 end -->
+    </LinearLayout>
+    <!-- title end -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee" />
+
+    <!-- 头像,内容,时间,地址 -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="10dp"
+        android:weightSum="5.5" >
+
+        <!-- 头像 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <view.RoundImageView
+                android:id="@+id/my_order_list_head"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/default_head" />
+
+            <TextView
+                android:id="@+id/my_order_list_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="奥巴马"
+                android:textColor="#101119"
+                android:textSize="12sp" />
+        </LinearLayout>
+        <!-- 头像 end -->
+
+
+        <!-- 内容, 时间, 地址 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="4.5"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/my_order_frag2_mypost_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="#6c6c6c"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:id="@+id/my_order_frag2_mypost_onlinell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:visibility="gone" >
+
+                <ImageView
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/xianshang" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="线上解决"
+                    android:textColor="#9a9a9a"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_order_inprocess_new_item_addrll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/addr_pic" />
+
+                <TextView
+                    android:id="@+id/my_order_frag2_mypost_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="15dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textColor="#9a9a9a"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/timer_pic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="完成时间"
+                    android:textColor="#9a9a9a"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/my_order_frag2_mypost_starttime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5dp"
+                    android:text=""
+                    android:textColor="#22b570"
+                    android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
+        <!-- 内容, 时间, 地址 end -->
+
+        <ImageView
+            android:id="@+id/my_order_item_delete"
+            android:layout_width="0dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="0.5"
+            android:src="@drawable/delete"
+            android:visibility="gone" />
+    </LinearLayout>
+    <!-- 头像,内容,时间,地址 end -->
+
+</LinearLayout>

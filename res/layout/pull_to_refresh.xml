@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pull_to_refresh_head"
+    android:layout_width="fill_parent"
+    android:layout_height="40dip"
+    android:background="#f3f3f3" >
+
+    <LinearLayout
+        android:layout_width="150dip"
+        android:layout_height="40dip"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:layout_width="0dip"
+            android:layout_height="40dip"
+            android:layout_weight="3" >
+
+            <ImageView
+                android:id="@+id/arrow"
+                android:layout_width="10dip"
+                android:layout_height="30dip"
+                android:scaleType="fitXY"
+                android:src="@drawable/arrow" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="22dip"
+                android:layout_height="22dip"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="40dip"
+            android:layout_weight="9"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/pull_to_refresh"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/updated_at"
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/updated_at"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

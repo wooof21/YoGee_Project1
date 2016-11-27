@@ -1,0 +1,169 @@
+/**
+ * 
+ *@param
+ */
+package adapter;
+
+import ivzoom.ImagePagerActivity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.youge.jobfinder.R;
+
+import discover.CreditMallGoodsDetailActivity;
+
+import android.R.integer;
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+/**
+ * 
+ *@param
+ */
+public class CreditMallGVAdapter extends BaseAdapter{
+
+	private Context context;
+	private ArrayList<HashMap<String, String>> list;
+	private String type;
+	private LayoutInflater lInflater;
+
+	
+	
+	/**
+	 * @param context
+	 * @param list
+	 */
+	public CreditMallGVAdapter(Context context,
+			ArrayList<HashMap<String, String>> list, String type){
+		super();
+		this.context = context;
+		this.list = list;
+		this.type = type;
+		this.lInflater = LayoutInflater.from(context);
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public int getCount(){
+		// TODO Auto-generated method stub
+		return list.size();
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public Object getItem(int position){
+		// TODO Auto-generated method stub
+		return list.get(position);
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public long getItemId(int position){
+		// TODO Auto-generated method stub
+		return position;
+	}
+
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent){
+		// TODO Auto-generated method stub
+		ViewHolder1 vHolder1 = null;
+		ViewHolder2 vHolder2 = null;
+		if(convertView == null){
+			if(type.equals("2")){
+				convertView = lInflater.inflate(R.layout.credit_mall_item, null);
+				vHolder1 = new ViewHolder1();
+				vHolder1.pic = (ImageView) convertView.findViewById(R.id.credit_mall_item_pic);
+				vHolder1.title = (TextView) convertView.findViewById(R.id.credit_mall_item_title);
+				vHolder1.credit = (TextView) convertView.findViewById(R.id.credit_mall_item_credit);
+				
+				convertView.setTag(vHolder1);
+				vHolder1.title.setText(list.get(position).get("integralmallName"));
+				vHolder1.credit.setText(list.get(position).get("integralmallPoint"));
+				ImageLoader.getInstance().displayImage(list.get(position).get("integralmallPicture"), vHolder1.pic);
+				convertView.setOnClickListener(new OnClickListener(){
+					
+					@Override
+					public void onClick(View v){
+						// TODO Auto-generated method stub
+						System.out.println("id ---> " + list.get(position).get("integralmallId"));
+						Intent intent = new Intent(context, CreditMallGoodsDetailActivity.class);
+						intent.putExtra("id", list.get(position).get("integralmallId"));
+						context.startActivity(intent);
+					}
+				});
+				
+//				vHolder1.pic.setOnClickListener(new OnClickListener(){
+//					
+//					@Override
+//					public void onClick(View v){
+//						// TODO Auto-generated method stub
+//						imageBrower(p, pics);
+//					}
+//				});
+			}else{
+				convertView = lInflater.inflate(R.layout.credit_mall_gv_item1, null);
+				vHolder2 = new ViewHolder2();
+				vHolder2.pic = (ImageView) convertView.findViewById(R.id.credit_mall_item1_pic);
+				vHolder2.title = (TextView) convertView.findViewById(R.id.credit_mall_item_tv);
+				vHolder2.title.setText(list.get(position).get("name"));
+				ImageLoader.getInstance().displayImage(list.get(position).get("img"), vHolder2.pic);
+				convertView.setTag(vHolder2);
+			}
+		}else{
+			if(type.equals("2")){
+				vHolder1 = (ViewHolder1) convertView.getTag();
+			}else{
+				vHolder2 = (ViewHolder2) convertView.getTag();
+			}
+		}
+		
+		return convertView;
+	}
+	
+	class ViewHolder1{
+		ImageView pic;
+		TextView title;
+		TextView credit;
+	}
+	class ViewHolder2{
+		ImageView pic;
+		TextView title;
+	}
+
+	
+	/**
+	 * 打开图片查看器
+	 * 
+	 * @param position
+	 * @param urls2
+	 */
+	protected void imageBrower(int position, ArrayList<String> urls2){
+		Intent intent = new Intent(context, ImagePagerActivity.class);
+		// 图片url,为了演示这里使用常量，一般从数据库中或网络中获取
+		intent.putExtra(ImagePagerActivity.EXTRA_IMAGE_URLS, urls2);
+		intent.putExtra(ImagePagerActivity.EXTRA_IMAGE_INDEX, position);
+		context.startActivity(intent);
+	}
+}

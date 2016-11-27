@@ -1,0 +1,51 @@
+/**
+ * 
+ * @param
+ */
+package model;
+
+
+/**
+ * 
+ * @param
+ */
+public class NearbyModdleModel {
+
+	private String name;
+	private String time;
+	private String content;
+	private String grade;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+}

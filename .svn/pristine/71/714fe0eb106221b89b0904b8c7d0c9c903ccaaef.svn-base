@@ -1,0 +1,366 @@
+/**
+ * 
+ * @param
+ */
+package discover;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+
+import model.ConvenienceFacilityModel;
+import tools.Config;
+import tools.HttpClient;
+import waterdroplv.WaterDropListView;
+import waterdroplv.WaterDropListView.IWaterDropListViewListener;
+import adapter.ConvenienceFacilityMainAdapter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
+import application.MyApplication;
+
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.LocationService;
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class ConvenienceFacilitiyActivity extends BaseActivity implements
+		IWaterDropListViewListener{
+
+	private WaterDropListView lv;
+	private ConvenienceFacilityModel model;
+	private ArrayList<ConvenienceFacilityModel> list;
+	private ArrayList<HashMap<String, String>> filterGvList, dataList;
+	private ConvenienceFacilityMainAdapter adapter;
+	private CustomProgressDialog pd, pd1;
+
+	private LocationService locationService;
+	private String lat = "0", lng = "0", city = "";
+	private int total = 0, count = 10;
+	private HashMap<String, String> filter;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.convenience_facility_main);
+		findViewById(R.id.back).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				finish();
+			}
+		});
+		lv = (WaterDropListView) findViewById(R.id.convenience_lv);
+		lv.setWaterDropListViewListener(this);
+		lv.setPullLoadEnable(true);
+		
+		filterGvList = new ArrayList<HashMap<String,String>>();
+		dataList = new ArrayList<HashMap<String,String>>();
+		filter = new HashMap<String, String>();
+		filter.put("name", getIntent().getExtras().getString("name"));
+		filter.put("img", getIntent().getExtras().getString("img"));
+		model = new ConvenienceFacilityModel();
+		list = new ArrayList<ConvenienceFacilityModel>();
+		model.setFacility(filterGvList);
+		model.setFilter(filter);
+		model.setFilterList(dataList);
+		list.add(model);
+		
+		adapter = new ConvenienceFacilityMainAdapter(this, list);
+		lv.setAdapter(adapter);
+		
+	}
+
+	private void initLoc(){
+		pd1 = CustomProgressDialog.createDialog(this);
+		// -----------location config ------------
+		locationService = ((MyApplication) getApplication()).locationService;
+		locationService.setLocationOption(locationService
+				.getDefaultLocationClientOption());
+		// 获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
+		locationService.registerListener(mListener);
+		locationService.start();// 定位SDK
+		// start之后会默认发起一次定位请求，开发者无须判断isstart并主动调用request
+
+	}
+
+	private BDLocationListener mListener = new BDLocationListener(){
+
+		@Override
+		public void onReceiveLocation(BDLocation arg0){
+			// TODO Auto-generated method stub
+			city = arg0.getCity();
+			lat = arg0.getLatitude() + "";
+			lng = arg0.getLongitude() + "";
+			System.out.println("lat ---> " + lat);
+			System.out.println("lng ---> " + lng);
+			Message msg = handler.obtainMessage();
+			msg.what = 1;
+			msg.sendToTarget();
+			// System.out.println("error ---> " + arg0.getLocType());
+			// System.out.println("District ---> " + arg0.getDistrict());
+			// System.out.println("Street ---> " + arg0.getStreet());
+			// System.out.println("getStreetNumber ---> " +
+			// arg0.getStreetNumber());
+			// System.out.println("address ---> " +
+			// arg0.getAddress().streetNumber);
+			// System.out.println("addressStr ---> " + arg0.getAddrStr());
+			// System.out.println("getBuildingID ---> " + arg0.getBuildingID());
+			// System.out.println("getBuildingName ---> " +
+			// arg0.getBuildingName());
+			// System.out.println("getFloor ---> " + arg0.getFloor());
+		}
+
+	};
+
+	private Handler handler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg){
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch(msg.what){
+				case 1:
+					locationService.unregisterListener(mListener);
+					locationService.stop();
+					pd1.dismiss();
+					filterHttp("2");
+					listHttp(getIntent().getExtras().getString("code"));
+				break;
+				default:
+				break;
+			}
+		}
+
+	};
+
+	private void filterHttp(String type){
+		pd = CustomProgressDialog.createDialog(this);
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("type", type);
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(this, Config.CONVENIENCE_FACILITY_FILTER_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							if (arg0 == 200){
+								String str = new String(arg2);
+								System.out.println("便民设施三公里筛选返回 ---> " + str);
+								String message = "";
+								try{
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if (state.equals("success")){
+										JSONObject data = result
+												.getJSONObject("data");
+										JSONArray jArray = data
+												.getJSONArray("list");
+										filterGvList.clear();
+										for(int i = 0, j = jArray.length(); i < j; i++){
+											JSONObject job = jArray
+													.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("code",
+													job.getString("code"));
+											hashMap.put("id",
+													job.getString("id"));
+											hashMap.put("img",
+													job.getString("img"));
+											hashMap.put("name",
+													job.getString("name"));
+
+											filterGvList.add(hashMap);
+										}
+										model.setFacility(filterGvList);
+										//list.add(model);
+										adapter.notifyDataSetChanged();
+									}else{
+										Toast.makeText(ConvenienceFacilitiyActivity.this, message, Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							Toast.makeText(ConvenienceFacilitiyActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void listHttp(String code){
+		JSONObject job = new JSONObject();
+		System.out.println("with lat ---> " + lat);
+		System.out.println("with lng ---> " + lng);
+		try{
+			job.put("city", city);
+			job.put("code", code);
+			job.put("count", "" + count);
+			job.put("total", "" + total);
+			job.put("lat", lat);
+			job.put("lng", lng);
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(this, Config.CONVENIENCE_FACILITY_FILTER_LIST_URL,
+					se, new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							if (arg0 == 200){
+								String str = new String(arg2);
+								System.out.println("便民设施列表接口返回 ---> " + str);
+								String message = "";
+								try{
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if(state.equals("success")){
+										JSONObject data = result.getJSONObject("data");
+										JSONArray jArray = data.getJSONArray("list");
+										dataList.clear();
+										for(int i=0,j=jArray.length();i<j;i++){
+											JSONObject job = jArray.optJSONObject(i);
+											HashMap<String, String> hashMap = new HashMap<String, String>();
+											hashMap.put("address",
+													job.getString("address"));
+											hashMap.put("distance",
+													job.getString("distance"));
+											hashMap.put("grade",
+													job.getString("grade"));
+											hashMap.put("id",
+													job.getString("id"));
+											hashMap.put("img",
+													job.getString("img"));
+											hashMap.put("lat",
+													job.getString("lat"));
+											hashMap.put("lng",
+													job.getString("lng"));
+											hashMap.put("name",
+													job.getString("name"));
+											hashMap.put("phone",
+													job.getString("phone"));
+											dataList.add(hashMap);
+										}
+										model.setFilterList(dataList);
+										adapter.notifyDataSetChanged();
+									}else{
+										Toast.makeText(ConvenienceFacilitiyActivity.this, message, Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							Toast.makeText(ConvenienceFacilitiyActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				initLoc();
+			}
+		}, 500);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onRefresh(){
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onLoadMore(){
+		// TODO Auto-generated method stub
+
+	}
+}

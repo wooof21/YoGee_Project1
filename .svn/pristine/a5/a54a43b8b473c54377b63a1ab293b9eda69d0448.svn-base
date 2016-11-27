@@ -1,0 +1,189 @@
+/**
+ * 
+ * @param
+ */
+package com.youge.jobfinder.vip;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+import model.RealName;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+import tools.Config;
+import tools.Exit;
+import tools.HttpClient;
+import tools.Tools;
+import view.ListViewForRealname;
+import adapter.RealNameIdentifyAdapter;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+import com.youge.jobfinder.RealNameDetailActivity;
+
+/**
+ * 
+ * @param
+ */
+public class RealNameIdentify extends BaseActivity implements OnClickListener {
+
+	private ImageView back;
+	private ListViewForRealname listView;
+	private RealNameIdentifyAdapter mAdapter;
+	private ScrollView sv;
+	private ArrayList<RealName> list;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.identity_certification_main);
+		findView();
+		initView();
+		authenticationHttpClient(new Tools().getUserId(this));
+	}
+
+	/**
+	 * 根据ID查找控件
+	 */
+	private void findView() {
+		listView = (ListViewForRealname) findViewById(R.id.listview);
+		list = new ArrayList<RealName>();
+		sv = (ScrollView) findViewById(R.id.scrollview);
+		sv.smoothScrollTo(0, 0);
+	}
+
+	/**
+	 * 初始化页面
+	 */
+	private void initView() {
+		mAdapter = new RealNameIdentifyAdapter(getApplicationContext(), list);
+		listView.setAdapter(mAdapter);
+		Exit.getInstance().addActivity(this);
+		back = (ImageView) findViewById(R.id.back);
+
+		back.setOnClickListener(this);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Intent intent = new Intent(getApplicationContext(),
+						RealNameDetailActivity.class);
+				intent.putExtra("id", list.get(position).getId());
+				startActivity(intent);
+				finish();
+			}
+		});
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.back:
+			finish();
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	private void authenticationHttpClient(String uid) {
+		final CustomProgressDialog pd = CustomProgressDialog.createDialog(this);
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(this, Config.AUTH_ENTICATION_LIST, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							pd.dismiss();
+							if (arg0 == 200) {
+								String str = new String(arg2);
+								System.out.println("个人信息接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if (state.equals("success")) {
+										JSONObject data = result
+												.getJSONObject("data");
+										JSONArray user = data
+												.getJSONArray("list");
+										for (int i = 0, j = user.length(); i < j; i++) {
+											RealName realName = new RealName();
+											JSONObject imgData = user
+													.getJSONObject(i);
+											realName.setId(imgData
+													.getString("id"));
+											realName.setType(imgData
+													.getString("type"));
+											realName.setState(imgData
+													.getString("state"));
+											realName.setImg(imgData
+													.getString("img"));
+											realName.setUpdateDate(imgData
+													.getString("updateDate"));
+											list.add(realName);
+										}
+										mAdapter.notifyDataSetChanged();
+									} else {
+										Toast.makeText(RealNameIdentify.this,
+												message, Toast.LENGTH_SHORT)
+												.show();
+									}
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(RealNameIdentify.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+}

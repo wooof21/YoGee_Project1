@@ -1,0 +1,132 @@
+/**
+ * 
+ * @param
+ */
+package fragment;
+
+import java.util.ArrayList;
+
+import model.NearbyModdleModel;
+import tools.MyViewGroup;
+import tools.PullToRefreshLayout;
+import tools.PullToRefreshLayout.OnRefreshListener;
+import view.ListViewForNearbyMiddle;
+import view.PullableScrollView;
+import adapter.NearbyModdleAdapter;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.youge.jobfinder.R;
+
+/**
+ * 
+ * @param
+ */
+public class NearbyShopDetailFragmentMiddle extends Fragment implements
+		OnRefreshListener {
+
+	private MyViewGroup fixGridLayout;
+	private LayoutInflater lInflater;
+	private TextView all_observer;
+	private android.view.ViewGroup.LayoutParams cameraLp;
+	private static String[] testName = {};
+	private NearbyModdleAdapter mAdapter;
+	private ListViewForNearbyMiddle listView;
+	private PullToRefreshLayout refresh;
+	private PullableScrollView sv;
+	private ArrayList<NearbyModdleModel> list;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(
+				R.layout.nearby_shop_detail_fragment_middle, null);
+		lInflater=inflater;
+		findView(view);
+		initView(view);
+		return view;
+	}
+
+	private void findView(View view) {
+		refresh = (PullToRefreshLayout) view.findViewById(R.id.refresh_view);
+		sv = (PullableScrollView) view.findViewById(R.id.sv);
+		sv.smoothScrollTo(0, 0);
+		fixGridLayout = (MyViewGroup) view.findViewById(R.id.fixGridLayout);
+		// all_observer = (TextView) view.findViewById(R.id.all_observer);
+		listView = (ListViewForNearbyMiddle) view
+				.findViewById(R.id.nearby_moddle_listview);
+		listView.setFocusable(false);
+		setLayout("全部评价(888)");
+		setLayout("好评(888)");
+		setLayout("中评(888)");
+		setLayout("超级(888)");
+		setLayout("全部评价(888)");
+		setLayout("全部评价(888)");
+		// cameraLp = all_observer.getLayoutParams();
+	}
+
+	private void initView(View view) {
+		list = new ArrayList<NearbyModdleModel>();
+		refresh.setOnRefreshListener(NearbyShopDetailFragmentMiddle.this);
+		mAdapter = new NearbyModdleAdapter(getActivity(), list);
+		listView.setAdapter(mAdapter);
+	}
+
+	private void setLayout(String content) {
+		View view = lInflater.inflate(R.layout.activity_nearby_detail, null);
+		TextView tv = (TextView) view.findViewById(R.id.nearby_detail);
+		tv.setText(content);
+		fixGridLayout.addView(tv);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	@Override
+	public void onRefresh(PullToRefreshLayout pullToRefreshLayout) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoadMore(PullToRefreshLayout pullToRefreshLayout) {
+		// TODO Auto-generated method stub
+
+	}
+}

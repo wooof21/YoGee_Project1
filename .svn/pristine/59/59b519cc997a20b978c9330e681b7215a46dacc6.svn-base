@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#cca1a1a1" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2" >
+
+        <LinearLayout
+            android:id="@+id/fragment_main_grab_order"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="20dp" >
+
+            <ImageView
+                android:id="@+id/grab"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/order_gray" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fragment_main_post_order"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingRight="20dp" >
+
+            <ImageView
+                android:id="@+id/post"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/order_post" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" >
+
+        <ImageView
+            android:id="@+id/post_popup_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/post_popup_back" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,16 @@
+/**
+ * 
+ *@param
+ */
+package fragment;
+
+import android.R.bool;
+
+/**
+ * 
+ *@param
+ */
+public interface NearbyCallBack{
+	void scrollTo(int y);
+	boolean isCoverShow();
+}

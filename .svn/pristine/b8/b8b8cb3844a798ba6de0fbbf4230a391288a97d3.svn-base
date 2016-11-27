@@ -1,0 +1,434 @@
+package com.youge.jobfinder.wxapi;
+
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
+import cn.sharesdk.wechat.utils.WXAppExtendObject;
+import cn.sharesdk.wechat.utils.WXMediaMessage;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.tencent.mm.sdk.modelbase.BaseReq;
+import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.umeng.analytics.MobclickAgent;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.BindingAccountActivity;
+import com.youge.jobfinder.MainActivity;
+
+/**
+ * @author Liming Chu
+ * 
+ * @param
+ * @return
+ */
+public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler {
+
+	private IWXAPI api;
+
+	private String code;
+
+	private String token;
+
+	private String refreshToken;
+
+	private String openid;
+
+	private SharedPreferences sharedPre;
+
+	private Editor editor;
+
+	public String unionid;
+
+	private String nickname;
+
+	private String sex;
+
+	private String headimgurl;
+
+	private final int WX_SUCCESS = 1;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		// setContentView(R.layout.login);
+		regToWx();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	/**
+	 * 处理微信发出的向第三方应用请求app message
+	 * <p>
+	 * 在微信客户端中的聊天页面有“添加工具”，可以将本应用的图标添加到其中 此后点击图标，下面的代码会被执行。Demo仅仅只是打开自己而已，但你可
+	 * 做点其他的事情，包括根本不打开任何页面
+	 */
+	public void onGetMessageFromWXReq(WXMediaMessage msg) {
+		Intent iLaunchMyself = getPackageManager().getLaunchIntentForPackage(
+				getPackageName());
+		startActivity(iLaunchMyself);
+	}
+
+	/**
+	 * 处理微信向第三方应用发起的消息
+	 * <p>
+	 * 此处用来接收从微信发送过来的消息，比方说本demo在wechatpage里面分享
+	 * 应用时可以不分享应用文件，而分享一段应用的自定义信息。接受方的微信 客户端会通过这个方法，将这个信息发送回接收方手机上的本demo中，当作 回调。
+	 * <p>
+	 * 本Demo只是将信息展示出来，但你可做点其他的事情，而不仅仅只是Toast
+	 */
+	public void onShowMessageFromWXReq(WXMediaMessage msg) {
+		if (msg != null && msg.mediaObject != null
+				&& (msg.mediaObject instanceof WXAppExtendObject)) {
+			WXAppExtendObject obj = (WXAppExtendObject) msg.mediaObject;
+			Toast.makeText(this, obj.extInfo, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.tencent.mm.sdk.openapi.IWXAPIEventHandler#onReq(com.tencent.mm.sdk
+	 * .modelbase.BaseReq)
+	 */
+	@Override
+	public void onReq(BaseReq arg0) {
+		// TODO Auto-generated method stub
+		finish();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.tencent.mm.sdk.openapi.IWXAPIEventHandler#onResp(com.tencent.mm.sdk
+	 * .modelbase.BaseResp)
+	 */
+	@Override
+	public void onResp(BaseResp resp) {
+		// TODO Auto-generated method stub
+		System.out.println("onResp ---> " + resp.getType());
+		String result = "";
+		if (resp.getType() == 2) {
+			statistics();
+			Toast.makeText(this, "分享成功!", Toast.LENGTH_SHORT).show();
+		} else {
+			switch (resp.errCode) {
+			case BaseResp.ErrCode.ERR_OK: // getStepTwoToken获取access_token
+				result = "授权成功";
+				code = ((SendAuth.Resp) resp).code;
+				Log.e("code", code);
+				new Thread() {
+					public void run() {
+						try {
+							String str = Tools
+									.getURL("https://api.weixin.qq.com/sns/oauth2/access_token?"
+											+ getData(code));
+							JSONObject job = new JSONObject(str);
+							refreshToken = job.getString("refresh_token");
+							openid = job.getString("openid");
+							token = job.getString("access_token");
+							unionid = job.getString("unionid");
+							String strOne = Tools
+									.getURL("https://api.weixin.qq.com/sns/userinfo?access_token="
+											+ token + "&openid=" + openid);
+							JSONObject jobs = new JSONObject(strOne);
+							nickname = jobs.getString("nickname");
+							sex = jobs.getString("sex");
+							headimgurl = jobs.getString("headimgurl");
+							Message msg = mHandler.obtainMessage();
+							msg.what = WX_SUCCESS;
+							msg.sendToTarget();
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					};
+				}.start();
+				break;
+			case BaseResp.ErrCode.ERR_USER_CANCEL:
+				result = "用户取消";
+				break;
+			case BaseResp.ErrCode.ERR_AUTH_DENIED:
+				result = "取消授权";
+				break;
+			default:
+				result = "";
+				break;
+			}
+
+			Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+		}
+		finish();
+	}
+
+	/**
+	 * 统计微信分享成功次数
+	 * 
+	 * @param
+	 */
+	private void statistics() {
+		MobclickAgent.onEvent(this, "share_wx");
+	}
+
+	private void saveLoginInfo(Context context, String openId, String unionid,
+			String token, String refreshToken) {
+		sharedPre = context.getSharedPreferences("user", Context.MODE_PRIVATE);
+		editor = sharedPre.edit();
+		editor.putString("openId", openId);
+		editor.putString("token", token);
+		editor.putString("refreshToken", refreshToken);
+		editor.putString("unionid", unionid);
+		editor.commit();
+	}
+
+	private void clearLoginInfo() {
+		if (editor != null) {
+			editor.clear();
+			editor.commit();
+		}
+	}
+
+	private void regToWx() {
+		api = WXAPIFactory.createWXAPI(this, "wx0a2552bac6e5416b", true);
+		api.registerApp("wx0a2552bac6e5416b");
+		api.handleIntent(getIntent(), this);
+	}
+
+	private String getData(String code) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("appid=wx0a2552bac6e5416b");
+		sb.append("&secret=d4624c36b6795d1d99dcf0547af5443d");
+		sb.append("&code=");
+		sb.append(code);
+		sb.append("&grant_type=authorization_code");
+
+		return sb.toString();
+	}
+
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case WX_SUCCESS:
+				SharedPreferences sharedPre = WXEntryActivity.this
+						.getSharedPreferences("user", Context.MODE_PRIVATE);
+				String isFromBinding = sharedPre
+						.getString("isFromBinding", "0");
+				if ("1".equals(isFromBinding)) {
+					Editor editor = sharedPre.edit();
+					editor.putString("isFromBinding", "0");
+					editor.commit();
+					Intent intent = new Intent(WXEntryActivity.this,
+							BindingAccountActivity.class);
+					intent.putExtra("openid", openid);
+					startActivity(intent);
+				} else {
+					WXUserInfo();
+				}
+				break;
+			}
+			super.handleMessage(msg);
+		}
+	};
+
+	/**
+	 * 微信登录成功 获取个人信息
+	 */
+	private void WXUserInfo() {
+		// final CustomProgressDialog pd = CustomProgressDialog
+		// .createDialog(WXEntryActivity.this);
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("openid", openid);
+			job.put("name", nickname);
+			job.put("img", headimgurl);
+			job.put("type", "1");
+			if ("女".equals(sex)) {
+				job.put("sex", "2");
+			} else {
+				job.put("sex", "1");
+			}
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(WXEntryActivity.this, Config.OTHER_LOGIN, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							// pd.dismiss();
+							if (arg0 == 200) {
+								String str = new String(arg2);
+								System.out.println("微信登录接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if (state.equals("success")) {
+										JSONObject data = result
+												.getJSONObject("data");
+										JSONObject userResult = data
+												.getJSONObject("user");
+										saveInfo(
+												userResult.getString("userid"),
+												userResult
+														.getString("username"),
+												openid, userResult
+														.getString("img"));
+										String cid = new Tools()
+												.getCID(WXEntryActivity.this);
+										if (!"".equals(cid)) {
+											bindAlias(
+													new Tools()
+															.getUserId(WXEntryActivity.this),
+													cid, new Tools().getEntityName(WXEntryActivity.this), WXEntryActivity.this);
+										}
+										Intent intent = new Intent(
+												WXEntryActivity.this,
+												MainActivity.class);
+										intent.putExtra("isFromTL", true);
+										startActivity(intent);
+									} else {
+										Toast.makeText(WXEntryActivity.this,
+												message, Toast.LENGTH_SHORT)
+												.show();
+									}
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+							// pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(WXEntryActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		} catch (JSONException e) {
+			e.printStackTrace();
+			// pd.dismiss();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			// pd.dismiss();
+		}
+	}
+
+	/**
+	 * 绑定账户
+	 */
+	private void bindAlias(String uid, String cid, String entityName, Context context) {
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+			job.put("cid", cid);
+			job.put("entityName", entityName);
+
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(context, Config.BIND_ALIAS, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							if (arg0 == 200) {
+								String str = new String(arg2);
+								System.out.println("绑定账户接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if (state.equals("success")) {
+										JSONObject data = result
+												.getJSONObject("data");
+										Log.v("别人资料", data.toString());
+										String results = data
+												.getString("result");
+										if ("0".equals(results)) {
+											Log.v("别人资料", "提交失败");
+										} else {
+											Log.v("别人资料", "提交成功");
+										}
+									}
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+						}
+					});
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void saveInfo(String uid, String uname, String openid, String img) {
+		MobclickAgent.onProfileSignIn("WeChat", uid);
+		SharedPreferences sharedPre = this.getSharedPreferences("user",
+				Context.MODE_PRIVATE);
+		Editor editor = sharedPre.edit();
+		editor.putString("id", uid);
+		editor.putString("username", uname);
+		editor.putString("openid", openid);
+		editor.putString("loginType", "otherRegister");
+		editor.putString("userimg", img);
+		editor.commit();
+	}
+}

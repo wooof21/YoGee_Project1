@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="#f5f5f5"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+    
+    <TextView 
+        android:id="@+id/nearby_right_lv_item_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分级标题"
+        android:textSize="13sp"
+        android:textColor="#666666"
+        android:layout_marginLeft="5dp"
+        />
+
+</LinearLayout>

@@ -1,0 +1,575 @@
+/**
+ * 
+ *@param
+ */
+package view;
+
+import com.youge.jobfinder.R;
+
+import tools.DensityUtil;
+import tools.Tools;
+import view.PostView.STATE;
+import android.R.integer;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
+import android.graphics.BitmapFactory.Options;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.animation.AnimationSet;
+
+/**
+ * 
+ *@param
+ */
+public class PostView1 extends View{
+
+	private Paint paint; // 创建画笔
+	private RectF rect;
+
+	private int INSIDE_SPEED = 1, OUTSIDE_SPEED = 2, SLEEP = 200;
+	private PointF pA, pB, pC, pD, pa, pb, pc, pd;
+	private PointF bsOringal, cheOringal, gwcOringal, kpOringal, lbOringal,
+			wjOringal, xsmOringal, yxOringal;
+	private Bitmap banshou, che, gouwuche, kapian, luobo, wenjian, xueshumao,
+			yaoxiang, post, inside, outside;
+
+	private STATE bsState, cheState, gwcState, kpState, lbState, wjState,
+			xsmState, yxState;
+	private Options opts;
+	private int SCALE = 2;
+	
+	private AnimationSet set;
+
+	private final static int POSTHALF = 93;
+	private final static int INSIDEHALF = 176;
+	private final static int OUTSIDEHALF = 238;
+	private final static int BSHALF = 35; 
+	private final static int LBHALF = 38; 
+	private final static int YXHALF = 30; 
+	private final static int XSMHALF = 35; 
+	private final static int KPHALF = 29; 
+	private final static int WJHALF = 41; 
+	private final static int CHEHALF = 38; 
+	private final static int GWCHALF = 23; 
+
+
+	public enum STATE{
+		LEFT_DOWN, RIGHT_DOWN, RIGHT_UP, LEFT_UP
+	}
+
+	/**
+	 * @param context
+	 * @param attrs
+	 */
+	public PostView1(Context context, AttributeSet attrs){
+		super(context, attrs);
+		// TODO Auto-generated constructor stub
+		init(context);
+//		thread = new postThread();
+//		thread.start();
+	}
+
+	private void init(Context context){
+		paint = new Paint();
+		paint.setAntiAlias(true);
+		rect = new RectF(0, 0, new Tools().getScreenWidth(context), new Tools().dip2px(context, 280));
+		opts = new BitmapFactory.Options();
+		opts.inPreferredConfig = Bitmap.Config.RGB_565;
+		opts.inScaled = true;
+		//opts.inTargetDensity = (int) new DensityUtil(context).getDmDensityDpi();
+		System.out.println("opts.inScreenDensity ---> " + new DensityUtil(context));
+		pA = new PointF(rect.centerX(), rect.centerY() - OUTSIDEHALF);
+		pB = new PointF(rect.centerX() - OUTSIDEHALF, rect.centerY());
+		pC = new PointF(rect.centerX(), rect.centerY() + OUTSIDEHALF);
+		pD = new PointF(rect.centerX() + OUTSIDEHALF, rect.centerY());
+		pa = new PointF(rect.centerX(), rect.centerY() - INSIDEHALF);
+		pb = new PointF(rect.centerX() - INSIDEHALF, rect.centerY());
+		pc = new PointF(rect.centerX(), rect.centerY() + INSIDEHALF);
+		pd = new PointF(rect.centerX() + INSIDEHALF, rect.centerY());
+		bsOringal = new PointF(pA.x - 95, pA.y + 5);
+		lbOringal = new PointF(pB.x + 10, pB.y + 21);
+		yxOringal = new PointF(pB.x + 115, pB.y + 135);
+		xsmOringal = new PointF(pC.x + 125, pC.y - 185);
+		kpOringal = new PointF(pD.x - 160, pD.y - 174);
+		wjOringal = new PointF(pa.x - 175, pa.y + 82);
+		cheOringal = new PointF(pc.x - 13, pc.y - 58);
+		gwcOringal = new PointF(pd.x - 52, pd.y - 62);
+		bsState = STATE.LEFT_DOWN;
+		lbState = STATE.RIGHT_DOWN;
+		yxState = STATE.RIGHT_DOWN;
+		xsmState = STATE.RIGHT_UP;
+		kpState = STATE.LEFT_UP;
+		wjState = STATE.LEFT_DOWN;
+		cheState = STATE.RIGHT_UP;
+		gwcState = STATE.LEFT_UP;
+		banshou = BitmapFactory.decodeResource(getResources(),
+				R.drawable.banshou, opts);
+		che = BitmapFactory.decodeResource(getResources(), R.drawable.cheche,
+				opts);
+		gouwuche = BitmapFactory.decodeResource(getResources(),
+				R.drawable.gouwuche, opts);
+		kapian = BitmapFactory.decodeResource(getResources(),
+				R.drawable.kapian, opts);
+		luobo = BitmapFactory.decodeResource(getResources(), R.drawable.luobo,
+				opts);
+		wenjian = BitmapFactory.decodeResource(getResources(),
+				R.drawable.wenjian, opts);
+		xueshumao = BitmapFactory.decodeResource(getResources(),
+				R.drawable.xueshumao, opts);
+		yaoxiang = BitmapFactory.decodeResource(getResources(),
+				R.drawable.yaoxiang, opts);
+		outside = BitmapFactory.decodeResource(getResources(), R.drawable.wai,
+				opts);
+		inside = BitmapFactory.decodeResource(getResources(), R.drawable.nei,
+				opts);
+		post = BitmapFactory
+				.decodeResource(getResources(), R.drawable.fa, opts);
+	}
+
+	private void drawPic(Canvas canvas){
+
+		// canvas.drawRect(rect, paint);
+		canvas.drawBitmap(post, rect.centerX() - POSTHALF, rect.centerY() - POSTHALF, paint);
+		canvas.drawBitmap(inside, rect.centerX() - INSIDEHALF, rect.centerY() - INSIDEHALF,
+				paint);
+		canvas.drawBitmap(outside, rect.centerX() - OUTSIDEHALF, rect.centerY() - OUTSIDEHALF,
+				paint);
+
+		canvas.drawBitmap(banshou, bsOringal.x, bsOringal.y, paint);
+		canvas.drawBitmap(luobo, lbOringal.x, lbOringal.y, paint);
+		canvas.drawBitmap(yaoxiang, yxOringal.x, yxOringal.y, paint);
+		canvas.drawBitmap(xueshumao, xsmOringal.x, xsmOringal.y, paint);
+		canvas.drawBitmap(kapian, kpOringal.x, kpOringal.y, paint);
+		canvas.drawBitmap(wenjian, wjOringal.x, wjOringal.y, paint);
+		canvas.drawBitmap(che, cheOringal.x, cheOringal.y, paint);
+		canvas.drawBitmap(gouwuche, gwcOringal.x, gwcOringal.y, paint);
+		
+		moveBS();
+		moveLB();
+		moveYX();
+		moveXSM();
+		moveKP();
+		moveWJ();
+		moveCHE();
+		moveGWC();
+		//
+
+		// try{
+		// invalidate((int)rect.left, (int)rect.top, (int)rect.right,
+		// (int)rect.bottom);
+		// postInvalidate((int)rect.left, (int)rect.top, (int)rect.right,
+		// (int)rect.bottom);
+		// Thread.sleep(SLEEP);
+		// }catch(InterruptedException e){
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+	}
+
+	private void moveBS(){
+		switch(bsState){
+			case LEFT_DOWN:
+				if (bsOringal.x > pB.x - BSHALF && bsOringal.y < pB.y + BSHALF){
+					bsOringal.x -= OUTSIDE_SPEED;
+					bsOringal.y += OUTSIDE_SPEED;
+				}else{
+					bsOringal.x = pB.x - BSHALF;
+					bsOringal.y = pB.y - BSHALF;
+					bsState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (bsOringal.x < pC.x - BSHALF && bsOringal.y < pC.y - BSHALF){
+					bsOringal.x += OUTSIDE_SPEED;
+					bsOringal.y += OUTSIDE_SPEED;
+				}else{
+					bsOringal.x = pC.x - BSHALF;
+					bsOringal.y = pC.y - BSHALF;
+					bsState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (bsOringal.x < pD.x + BSHALF && bsOringal.y > pD.y - BSHALF){
+					bsOringal.x += OUTSIDE_SPEED;
+					bsOringal.y -= OUTSIDE_SPEED;
+				}else{
+					bsOringal.x = pD.x - BSHALF;
+					bsOringal.y = pD.y - BSHALF;
+					bsState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (bsOringal.x > pA.x - BSHALF && bsOringal.y > pA.y - BSHALF){
+					bsOringal.x -= OUTSIDE_SPEED;
+					bsOringal.y -= OUTSIDE_SPEED;
+				}else{
+					bsOringal.x = pA.x - BSHALF;
+					bsOringal.y = pA.y - BSHALF;
+					bsState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); // 实现动画的关键点
+	}
+
+	private void moveLB(){
+		switch(yxState){
+			case RIGHT_DOWN:
+				if (lbOringal.x < pC.x - LBHALF && lbOringal.y < pC.y - LBHALF){
+					lbOringal.x += OUTSIDE_SPEED;
+					lbOringal.y += OUTSIDE_SPEED;
+				}else{
+					lbOringal.x = pC.x - LBHALF;
+					lbOringal.y = pC.y - LBHALF;
+					yxState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (lbOringal.x < pD.x + LBHALF && lbOringal.y > pD.y - LBHALF){
+					lbOringal.x += OUTSIDE_SPEED;
+					lbOringal.y -= OUTSIDE_SPEED;
+				}else{
+					lbOringal.x = pD.x - LBHALF;
+					lbOringal.y = pD.y - LBHALF;
+					yxState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (lbOringal.x > pA.x - LBHALF && lbOringal.y > pA.y - LBHALF){
+					lbOringal.x -= OUTSIDE_SPEED;
+					lbOringal.y -= OUTSIDE_SPEED;
+				}else{
+					lbOringal.x = pA.x - LBHALF;
+					lbOringal.y = pA.y - LBHALF;
+					yxState = STATE.LEFT_DOWN;
+				}
+			break;
+			case LEFT_DOWN:
+				if (lbOringal.x > pB.x - LBHALF && lbOringal.y < pB.y + LBHALF){
+					lbOringal.x -= OUTSIDE_SPEED;
+					lbOringal.y += OUTSIDE_SPEED;
+				}else{
+					lbOringal.x = pB.x - LBHALF;
+					lbOringal.y = pB.y - LBHALF;
+					yxState = STATE.RIGHT_DOWN;
+				}
+			break;
+			default:
+			break;
+		} 
+		invalidate(); //实现动画的关键点          
+	}
+
+	private void moveYX(){
+		switch(lbState){
+			case RIGHT_DOWN:
+				if (yxOringal.x < pC.x - YXHALF && yxOringal.y < pC.y - YXHALF){
+					yxOringal.x += OUTSIDE_SPEED;
+					yxOringal.y += OUTSIDE_SPEED;
+				}else{
+					yxOringal.x = pC.x - YXHALF;
+					yxOringal.y = pC.y - YXHALF;
+					lbState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (yxOringal.x < pD.x + YXHALF && yxOringal.y > pD.y - YXHALF){
+					yxOringal.x += OUTSIDE_SPEED;
+					yxOringal.y -= OUTSIDE_SPEED;
+				}else{
+					yxOringal.x = pD.x - YXHALF;
+					yxOringal.y = pD.y - YXHALF;
+					lbState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (yxOringal.x > pA.x - YXHALF && yxOringal.y > pA.y - YXHALF){
+					yxOringal.x -= OUTSIDE_SPEED;
+					yxOringal.y -= OUTSIDE_SPEED;
+				}else{
+					yxOringal.x = pA.x - YXHALF;
+					yxOringal.y = pA.y - YXHALF;
+					lbState = STATE.LEFT_DOWN;
+				}
+			break;
+			case LEFT_DOWN:
+				if (yxOringal.x > pB.x - YXHALF && yxOringal.y < pB.y + YXHALF){
+					yxOringal.x -= OUTSIDE_SPEED;
+					yxOringal.y += OUTSIDE_SPEED;
+				}else{
+					yxOringal.x = pB.x - YXHALF;
+					yxOringal.y = pB.y - YXHALF;
+					lbState = STATE.RIGHT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	private void moveXSM(){
+		switch(xsmState){
+			case LEFT_DOWN:
+				if (xsmOringal.x > pB.x - XSMHALF && xsmOringal.y < pB.y + XSMHALF){
+					xsmOringal.x -= OUTSIDE_SPEED;
+					xsmOringal.y += OUTSIDE_SPEED;
+				}else{
+					xsmOringal.x = pB.x - XSMHALF;
+					xsmOringal.y = pB.y - XSMHALF;
+					xsmState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (xsmOringal.x < pC.x - XSMHALF && xsmOringal.y < pC.y - XSMHALF){
+					xsmOringal.x += OUTSIDE_SPEED;
+					xsmOringal.y += OUTSIDE_SPEED;
+				}else{
+					xsmOringal.x = pC.x - XSMHALF;
+					xsmOringal.y = pC.y - XSMHALF;
+					xsmState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (xsmOringal.x < pD.x + XSMHALF && xsmOringal.y > pD.y - XSMHALF){
+					xsmOringal.x += OUTSIDE_SPEED;
+					xsmOringal.y -= OUTSIDE_SPEED;
+				}else{
+					xsmOringal.x = pD.x - XSMHALF;
+					xsmOringal.y = pD.y - XSMHALF;
+					xsmState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (xsmOringal.x > pA.x - XSMHALF && xsmOringal.y > pA.y - XSMHALF){
+					xsmOringal.x -= OUTSIDE_SPEED;
+					xsmOringal.y -= OUTSIDE_SPEED;
+				}else{
+					xsmOringal.x = pA.x - XSMHALF;
+					xsmOringal.y = pA.y - XSMHALF;
+					xsmState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	private void moveKP(){
+		switch(kpState){
+			case LEFT_DOWN:
+				if (kpOringal.x > pB.x - KPHALF && kpOringal.y < pB.y + KPHALF){
+					kpOringal.x -= OUTSIDE_SPEED;
+					kpOringal.y += OUTSIDE_SPEED;
+				}else{
+					kpOringal.x = pB.x - KPHALF;
+					kpOringal.y = pB.y - KPHALF;
+					kpState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (kpOringal.x < pC.x - KPHALF && kpOringal.y < pC.y - KPHALF){
+					kpOringal.x += OUTSIDE_SPEED;
+					kpOringal.y += OUTSIDE_SPEED;
+				}else{
+					kpOringal.x = pC.x - KPHALF;
+					kpOringal.y = pC.y - KPHALF;
+					kpState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (kpOringal.x < pD.x + KPHALF && kpOringal.y > pD.y - KPHALF){
+					kpOringal.x += OUTSIDE_SPEED;
+					kpOringal.y -= OUTSIDE_SPEED;
+				}else{
+					kpOringal.x = pD.x - KPHALF;
+					kpOringal.y = pD.y - KPHALF;
+					kpState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (kpOringal.x > pA.x - KPHALF && kpOringal.y > pA.y - KPHALF){
+					kpOringal.x -= OUTSIDE_SPEED;
+					kpOringal.y -= OUTSIDE_SPEED;
+				}else{
+					kpOringal.x = pA.x - KPHALF;
+					kpOringal.y = pA.y - KPHALF;
+					kpState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	private void moveWJ(){
+		switch(wjState){
+			case LEFT_DOWN:
+				if (wjOringal.x > pb.x - WJHALF && wjOringal.y < pb.y + WJHALF){
+					wjOringal.x -= INSIDE_SPEED;
+					wjOringal.y += INSIDE_SPEED;
+				}else{
+					wjOringal.x = pb.x - WJHALF;
+					wjOringal.y = pb.y - WJHALF;
+					wjState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (wjOringal.x < pc.x - WJHALF && wjOringal.y < pc.y - WJHALF){
+					wjOringal.x += INSIDE_SPEED;
+					wjOringal.y += INSIDE_SPEED;
+				}else{
+					wjOringal.x = pc.x - WJHALF;
+					wjOringal.y = pc.y - WJHALF;
+					wjState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (wjOringal.x < pd.x + WJHALF && wjOringal.y > pd.y - WJHALF){
+					wjOringal.x += INSIDE_SPEED;
+					wjOringal.y -= INSIDE_SPEED;
+				}else{
+					wjOringal.x = pd.x - WJHALF;
+					wjOringal.y = pd.y - WJHALF;
+					wjState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (wjOringal.x > pa.x - WJHALF && wjOringal.y > pa.y - WJHALF){
+					wjOringal.x -= INSIDE_SPEED;
+					wjOringal.y -= INSIDE_SPEED;
+				}else{
+					wjOringal.x = pa.x - WJHALF;
+					wjOringal.y = pa.y - WJHALF;
+					wjState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	private void moveCHE(){
+		switch(cheState){
+			case LEFT_DOWN:
+				if (cheOringal.x > pb.x - CHEHALF && cheOringal.y < pb.y + CHEHALF){
+					cheOringal.x -= INSIDE_SPEED;
+					cheOringal.y += INSIDE_SPEED;
+				}else{
+					cheOringal.x = pb.x - CHEHALF;
+					cheOringal.y = pb.y - CHEHALF;
+					cheState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (cheOringal.x < pc.x - CHEHALF && cheOringal.y < pc.y - CHEHALF){
+					cheOringal.x += INSIDE_SPEED;
+					cheOringal.y += INSIDE_SPEED;
+				}else{
+					cheOringal.x = pc.x - CHEHALF;
+					cheOringal.y = pc.y - CHEHALF;
+					cheState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (cheOringal.x < pd.x + CHEHALF && cheOringal.y > pd.y - CHEHALF){
+					cheOringal.x += INSIDE_SPEED;
+					cheOringal.y -= INSIDE_SPEED;
+				}else{
+					cheOringal.x = pd.x - CHEHALF;
+					cheOringal.y = pd.y - CHEHALF;
+					cheState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (cheOringal.x > pa.x - CHEHALF && cheOringal.y > pa.y - CHEHALF){
+					cheOringal.x -= INSIDE_SPEED;
+					cheOringal.y -= INSIDE_SPEED;
+				}else{
+					cheOringal.x = pa.x - CHEHALF;
+					cheOringal.y = pa.y - CHEHALF;
+					cheState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	private void moveGWC(){
+		switch(gwcState){
+			case LEFT_DOWN:
+				if (gwcOringal.x > pb.x - GWCHALF && gwcOringal.y < pb.y + GWCHALF){
+					gwcOringal.x -= INSIDE_SPEED;
+					gwcOringal.y += INSIDE_SPEED;
+				}else{
+					gwcOringal.x = pb.x - GWCHALF;
+					gwcOringal.y = pb.y - GWCHALF;
+					gwcState = STATE.RIGHT_DOWN;
+				}
+			break;
+			case RIGHT_DOWN:
+				if (gwcOringal.x < pc.x - GWCHALF && gwcOringal.y < pc.y - GWCHALF){
+					gwcOringal.x += INSIDE_SPEED;
+					gwcOringal.y += INSIDE_SPEED;
+				}else{
+					gwcOringal.x = pc.x - GWCHALF;
+					gwcOringal.y = pc.y - GWCHALF;
+					gwcState = STATE.RIGHT_UP;
+				}
+			break;
+			case RIGHT_UP:
+				if (gwcOringal.x < pd.x + GWCHALF && gwcOringal.y > pd.y - GWCHALF){
+					gwcOringal.x += INSIDE_SPEED;
+					gwcOringal.y -= INSIDE_SPEED;
+				}else{
+					gwcOringal.x = pd.x - GWCHALF;
+					gwcOringal.y = pd.y - GWCHALF;
+					gwcState = STATE.LEFT_UP;
+				}
+			break;
+			case LEFT_UP:
+				if (gwcOringal.x > pa.x - GWCHALF && gwcOringal.y > pa.y - GWCHALF){
+					gwcOringal.x -= INSIDE_SPEED;
+					gwcOringal.y -= INSIDE_SPEED;
+				}else{
+					gwcOringal.x = pa.x - GWCHALF;
+					gwcOringal.y = pa.y - GWCHALF;
+					gwcState = STATE.LEFT_DOWN;
+				}
+			break;
+			default:
+			break;
+		}
+		invalidate(); //实现动画的关键点    
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas){
+		// TODO Auto-generated method stub
+		super.onDraw(canvas);
+		drawPic(canvas);
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
+		// TODO Auto-generated method stub
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+
+}

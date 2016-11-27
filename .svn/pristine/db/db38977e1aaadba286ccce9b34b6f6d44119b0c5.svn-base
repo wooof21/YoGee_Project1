@@ -1,0 +1,83 @@
+/**
+ * 
+ * @param
+ */
+package com.youge.jobfinder.vip;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import tools.Exit;
+import waterdroplv.WaterDropListView;
+
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.R;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+
+/**
+ * 
+ * @param
+ */
+public class MyBalanceActivity extends BaseActivity{
+
+	private WaterDropListView lv;
+
+	private HashMap<String, String> map;
+	private ArrayList<HashMap<String, String>> allList;
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.my_balance_main);
+
+		// // 透明状态栏
+		// getWindow()
+		// .addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		// // 透明导航栏
+		// getWindow().addFlags(
+		// WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		Exit.getInstance().addActivity(this);
+
+		findViewById(R.id.back).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				finish();
+			}
+		});
+
+		lv = (WaterDropListView) findViewById(R.id.waterDropListView1);
+
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+}

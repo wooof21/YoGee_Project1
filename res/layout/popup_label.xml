@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:id="@+id/label_zhu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiii"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/zhu" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iiiiiiii"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="工作互助"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/zhu_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+
+        <!-- divider -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/dash_grey" />
+
+        <RelativeLayout
+            android:id="@+id/label_xiu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiiii"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/xiu" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iiiiiiiii"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="维修配件"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/xiu_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+
+        <!-- divider -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/dash_grey" />
+
+        <RelativeLayout
+            android:id="@+id/label_zhi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiiiiis"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/zhi" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iiiiiiiiiis"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="兼职求职"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/zhi_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+        <!-- divider -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/dash_grey" />
+
+        <RelativeLayout
+            android:id="@+id/label_che"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiiiii"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/che" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/iiiiiiiiii"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="顺风搭车"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/che_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/dash_grey" />
+
+        <RelativeLayout
+            android:id="@+id/label_song"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiiiiiss"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/song" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iiiiiiiiiiss"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="城市速递"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/song_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+        <!-- divider -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/dash_grey" />
+
+        <RelativeLayout
+            android:id="@+id/label_jia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/iiiiiiiiiisss"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/jia" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iiiiiiiiiisss"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="家政服务"
+                android:textColor="#515151"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/jia_select"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:src="@drawable/zhineng_select"
+                android:visibility="invisible" />
+        </RelativeLayout>
+        <!-- divider -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#eeeeee" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="2dp"
+                    android:background="#d1d1d1" />
+
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="2dp"
+                    android:background="#d1d1d1" />
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

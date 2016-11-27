@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp" >
+
+        <!-- 头像linearlayout -->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dp" >
+
+            <view.RoundImageView
+                android:id="@+id/my_order_list_head"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/default_head" />
+
+            <TextView
+                android:id="@+id/my_order_list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
+                android:text="王丽"
+                android:textColor="#101119"
+                android:textSize="12sp" />
+        </LinearLayout>
+        <!-- 头像linearlayout end -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/my_order_item_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="我需要补习"
+                    android:textColor="#101119"
+                    android:textSize="17sp" />
+
+                <LinearLayout
+                    android:id="@+id/my_order_list_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@id/my_order_item_title"
+                    android:orientation="horizontal">
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/my_order_list_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:text="09-15下午3:12"
+                    android:textColor="#cccccc"
+                    android:textSize="9sp" />
+
+                <ImageView
+                    android:id="@+id/my_order_item_delete"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/my_order_list_date"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/delete"
+                    android:visibility="visible" />
+            </RelativeLayout>
+
+            <!-- content -->
+
+            <TextView
+                android:id="@+id/my_order_list_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="50dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="我需要补习托福英语,谁来帮我补习物理"
+                android:textColor="#777777"
+                android:textSize="14sp" />
+            <!-- content end -->
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingRight="5dp" >
+
+                <ImageView
+                    android:id="@+id/iiiiiiiiiv"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/addr_pic" />
+
+
+
+                <ImageView
+                    android:id="@+id/iiiiiiiiiiv"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/order_location"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/my_order_list_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_toRightOf="@id/iiiiiiiiiiv"
+                    android:text="1.3公里"
+                    android:textColor="#777777"
+                    android:textSize="9sp" 
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/my_order_list_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/square_yellow"
+                    android:paddingBottom="3dp"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:paddingTop="3dp"
+                    android:text="待抢单"
+                    android:textColor="#ffffff"
+                    android:textSize="10sp" />
+                
+                                <TextView
+                    android:id="@+id/my_order_item_addr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_toRightOf="@id/iiiiiiiiiv"
+                    android:layout_toLeftOf="@id/my_order_list_status"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:layout_centerVertical="true"
+                    android:text="长春市世纪宏远一号公寓2222"
+                    android:textColor="#777777"
+                    android:layout_marginRight="30dp"
+                    android:textSize="13sp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- divider -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee" />
+
+</LinearLayout>

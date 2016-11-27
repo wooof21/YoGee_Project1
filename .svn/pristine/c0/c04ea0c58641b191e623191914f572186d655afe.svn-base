@@ -1,0 +1,261 @@
+package com.youge.jobfinder.activity;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import model.OrderRecords;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import tools.Config;
+import tools.HttpClient;
+import tools.RefreshableView;
+import tools.Tools;
+import waterdroplv.WaterDropListView;
+import waterdroplv.WaterDropListView.IWaterDropListViewListener;
+import adapter.MainMybalacneAdapter;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.youge.jobfinder.BaseActivity;
+import com.youge.jobfinder.BindingAccountActivity;
+import com.youge.jobfinder.MainActivity;
+import com.youge.jobfinder.R;
+
+public class MainMybalacneActivity extends BaseActivity implements
+		OnClickListener, IWaterDropListViewListener {
+
+	private WaterDropListView listview;
+	private MainMybalacneAdapter mAdapter;
+	private RefreshableView refresh;
+	private ImageView back;
+	private LinearLayout balacneExplain;
+	private String total = "0";
+	private String count = "10";
+	private TextView balacne;
+	private ArrayList<OrderRecords> listOrderRecords;
+	private HashMap<String, String> balacnetext;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main_mybalacne);
+		findView();
+		initView();
+		orderRecordsHttpClient(new Tools().getUserId(this));
+	}
+
+	/**
+	 * 根据ID查找控件
+	 */
+	private void findView() {
+		total = "0";
+		listview = (WaterDropListView) findViewById(R.id.listview);
+		back = (ImageView) findViewById(R.id.back);
+	}
+
+	/**
+	 * 初始化页面
+	 */
+	private void initView() {
+		listOrderRecords = new ArrayList<OrderRecords>();
+		balacnetext = new HashMap<String, String>();
+		mAdapter = new MainMybalacneAdapter(getApplicationContext(),
+				listOrderRecords, balacnetext);
+		listview.setWaterDropListViewListener(this);
+		listview.setPullLoadEnable(true);
+		listview.setAdapter(mAdapter);
+		// balacneExplain.setOnClickListener(this);
+		back.setOnClickListener(this);
+	}
+
+	/**
+	 * handler 处理waterdroplistview刷新加载
+	 */
+	private Handler wdlvHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case 1:
+				listview.stopRefresh();
+				break;
+			case 2:
+				listview.stopLoadMore();
+				break;
+			}
+
+		}
+	};
+
+	@Override
+	public void onRefresh() {
+		// TODO Auto-generated method stub
+		total = "0";
+		listOrderRecords.clear();
+		orderRecordsHttpClient(new Tools().getUserId(this));
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onLoadMore() {
+		// TODO Auto-generated method stub
+		total = Integer.parseInt(total) + Integer.parseInt(count) + "";
+		orderRecordsHttpClient(new Tools().getUserId(this));
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					wdlvHandler.sendEmptyMessage(2);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.back:
+			Intent intent = new Intent(MainMybalacneActivity.this,
+					MainActivity.class);
+			intent.putExtra("isFromTL", true);
+			startActivity(intent);
+			finish();
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void orderRecordsHttpClient(String uid) {
+		JSONObject job = new JSONObject();
+
+		try {
+			job.put("userid", uid);
+			job.put("count", count);
+			job.put("total", total);
+
+			StringEntity se = new StringEntity(job.toString(), "utf-8");
+			HttpClient.post(this, Config.ORDER_RECORDS, se,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onSuccess(int arg0, Header[] arg1,
+								byte[] arg2) {
+							if (arg0 == 200) {
+								String str = new String(arg2);
+								System.out.println("绑定List接口返回 ---> " + str);
+								String message = "";
+								try {
+									JSONObject result = new JSONObject(str);
+									String state = result.getString("state");
+									message = result.getString("msg");
+									if (state.equals("success")) {
+										JSONObject data = result
+												.getJSONObject("data");
+										// balacne.setText(data
+										// .getString("userMoney"));
+										balacnetext.put("0",
+												data.getString("userMoney"));
+										JSONArray bindingList = data
+												.getJSONArray("list");
+										for (int i = 0, j = bindingList
+												.length(); i < j; i++) {
+											OrderRecords orderRecords = new OrderRecords();
+											JSONObject Data = bindingList
+													.getJSONObject(i);
+											orderRecords.setId(Data
+													.getString("id"));
+											orderRecords.setTitle(Data
+													.getString("title"));
+											orderRecords.setType(Data
+													.getString("type"));
+											orderRecords.setMoney(Data
+													.getString("money"));
+											orderRecords.setCreateDate(Data
+													.getString("createDate"));
+											listOrderRecords.add(orderRecords);
+
+										}
+										if (bindingList.length() == 0) {
+											Toast.makeText(
+													MainMybalacneActivity.this,
+													"无收支明细", Toast.LENGTH_SHORT)
+													.show();
+										}
+										mAdapter.notifyDataSetChanged();
+									} else {
+										Toast.makeText(
+												MainMybalacneActivity.this,
+												message, Toast.LENGTH_SHORT)
+												.show();
+									}
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+						@Override
+						public void onFailure(int arg0, Header[] arg1,
+								byte[] arg2, Throwable arg3) {
+							// TODO Auto-generated method stub
+							// 网络断开时进行相关操作
+							Toast.makeText(MainMybalacneActivity.this,
+									"网络连接失败，请检测网络！", Toast.LENGTH_SHORT).show();
+						}
+					});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			Intent intent = new Intent(MainMybalacneActivity.this,
+					MainActivity.class);
+			intent.putExtra("isFromTL", true);
+			startActivity(intent);
+			finish();
+		}
+		return false;
+	}
+}

@@ -1,0 +1,133 @@
+package com.youge.jobfinder;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import cn.sharesdk.framework.ShareSDK;
+
+import com.igexin.sdk.PushManager;
+import com.umeng.analytics.AnalyticsConfig;
+import com.umeng.analytics.MobclickAgent;
+
+@SuppressLint("WorldReadableFiles")
+public class SplashActivity extends BaseActivity {
+
+	private boolean isHasNetwork;
+
+	private SharedPreferences sp;
+	private String notificationID;
+	private String notificationType, notificationoid, notificationcategory,
+			notificationwhere, notificationorderState;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.splash);
+
+		ShareSDK.initSDK(getApplicationContext());
+
+		notificationID = getIntent().getStringExtra("notificationID");
+		if (notificationID == null) {
+			notificationID = "";
+		}
+		notificationType = getIntent().getStringExtra("notificationType");
+		if (notificationType == null) {
+			notificationType = "";
+		}
+		notificationoid = getIntent().getStringExtra("notificationoid");
+		if (notificationoid == null) {
+			notificationoid = "";
+		}
+		notificationcategory = getIntent().getStringExtra(
+				"notificationcategory");
+		if (notificationcategory == null) {
+			notificationcategory = "";
+		}
+		notificationwhere = getIntent().getStringExtra("notificationwhere");
+		if (notificationwhere == null) {
+			notificationwhere = "";
+		}
+		notificationorderState = getIntent().getStringExtra(
+				"notificationorderState");
+		if (notificationorderState == null) {
+			notificationorderState = "";
+		}
+		Log.e("notificationType", notificationType);
+		PushManager.getInstance().initialize(this.getApplicationContext());
+
+		// isHasNetwork = NetworkUtils.isNetworkAvailable(SplashActivity.this);
+		// if (!isHasNetwork) {
+		// CommonTools.showShortToast(this, "当前网络不可用！");
+		// }
+
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				initView();
+			}
+		};
+		timer.schedule(task, 1500); // 停留1秒钟.
+
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		/**
+		 * 发送策略 发送策略定义了用户由统计分析SDK产生的数据发送回友盟服务器的频率。
+		 * 
+		 * 您需要在程序的入口 Activity 中添加
+		 */
+		MobclickAgent.updateOnlineConfig(this);
+		/**
+		 * 2.6 日志加密设置 您可以通过在程序入口处的activity中调用如下代码来设置加密模式。
+		 */
+		AnalyticsConfig.enableEncrypt(true);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	@SuppressLint("WorldReadableFiles")
+	private void initView() {
+		sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+		boolean isFirstStart = sp.getBoolean("isFirstStart", true);
+
+		if (isFirstStart) {
+			Intent intent = new Intent(this, FirstStartActivity.class);
+			startActivity(intent);
+			SplashActivity.this.finish();
+			return;
+		} else {
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.putExtra("isFromSplash", true);
+			intent.putExtra("notificationID", notificationID);
+			intent.putExtra("notificationType", notificationType);
+			intent.putExtra("notificationoid", notificationoid);
+			intent.putExtra("notificationcategory", notificationcategory);
+			intent.putExtra("notificationwhere", notificationwhere);
+			intent.putExtra("notificationorderState", notificationorderState);
+			startActivity(intent);
+			SplashActivity.this.finish();
+		}
+	}
+}

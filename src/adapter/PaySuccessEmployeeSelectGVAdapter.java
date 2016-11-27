@@ -1,0 +1,443 @@
+/**
+ * 
+ * @param
+ */
+package adapter;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import progressdialog.CustomProgressDialog;
+
+import baidu.BaiDuMapTraceActivity;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.youge.jobfinder.R;
+import com.youge.jobfinder.activity.CommentActivity;
+import com.youge.jobfinder.activity.CommentListActivity;
+import com.youge.jobfinder.activity.GetOtherInfoActivity;
+import com.youge.jobfinder.activity.OrderListDetailActivity;
+
+import tools.Config;
+import tools.HttpClient;
+import tools.Tools;
+import view.RoundImageView;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceActivity.Header;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+/**
+ * 
+ * @param
+ */
+public class PaySuccessEmployeeSelectGVAdapter extends BaseAdapter{
+
+	private Context context;
+	private ArrayList<HashMap<String, String>> list;
+	private String os, oid, type;
+	private String state;
+	private ArrayList<HashMap<String, String>> cList;
+	private Handler handler;
+	private String online;
+	private LayoutInflater lInflater;
+
+	/**
+	 * @param context
+	 * @param list
+	 */
+	public PaySuccessEmployeeSelectGVAdapter(Context context,
+			ArrayList<HashMap<String, String>> list, String orderState,
+			String oid, String type, ArrayList<HashMap<String, String>> cMap,
+			Handler handler, String online){
+		super();
+		this.context = context;
+		this.list = list;
+		this.os = orderState;
+		this.oid = oid;
+		this.type = type;
+		this.cList = cMap;
+		this.handler = handler;
+		this.online = online;
+		this.lInflater = LayoutInflater.from(context);
+	}
+
+	public PaySuccessEmployeeSelectGVAdapter(Context context,
+			ArrayList<HashMap<String, String>> list){
+		super();
+		this.context = context;
+		this.list = list;
+		this.lInflater = LayoutInflater.from(context);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public int getCount(){
+		// TODO Auto-generated method stub
+		return list.size();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public Object getItem(int position){
+		// TODO Auto-generated method stub
+		return list.get(position);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public long getItemId(int position){
+		// TODO Auto-generated method stub
+		return position;
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent){
+		// TODO Auto-generated method stub
+		if (convertView == null){
+			convertView = lInflater.inflate(
+					R.layout.bid_order_inprocess_employee_item, null);
+		}
+		ViewHolder vHolder = new ViewHolder();
+		vHolder.head = (RoundImageView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_head);
+		vHolder.name = (TextView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_name);
+		vHolder.price = (TextView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_price);
+		vHolder.pic = (ImageView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_status_pic);
+		vHolder.text = (TextView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_status_text);
+		vHolder.todo = (TextView) convertView
+				.findViewById(R.id.order_inprocess_sel_item_commit);
+		vHolder.trace = (LinearLayout) convertView
+				.findViewById(R.id.order_inprocess_sel_item_trace);
+
+
+		vHolder.name.setText(list.get(position).get("username"));
+		ImageLoader.getInstance().displayImage(list.get(position).get("img"),
+				vHolder.head);
+		vHolder.price.setText("出价￥" + list.get(position).get("price") + "元");
+
+		if (list.get(position).get("userState").equals("1")){ // 已出发
+			vHolder.pic.setImageResource(R.drawable.order_status_leaving);
+			vHolder.text.setText("已出发");
+			vHolder.todo.setVisibility(View.VISIBLE);
+			vHolder.todo.setText("催单");
+			state = "urge";
+		}else if (list.get(position).get("userState").equals("2")){ // 在途中
+			vHolder.pic.setImageResource(R.drawable.order_status_onroad);
+			vHolder.text.setText("在途中");
+			vHolder.todo.setVisibility(View.VISIBLE);
+			vHolder.todo.setText("催单");
+			state = "urge";
+		}else if (list.get(position).get("userState").equals("3")){ // 已完成
+			vHolder.pic.setImageResource(R.drawable.order_status_finish);
+			vHolder.text.setText("已完成");
+			vHolder.todo.setVisibility(View.VISIBLE);
+			vHolder.todo.setText("确认");
+			state = "done";
+		}else if (list.get(position).get("userState").equals("4")){
+			vHolder.pic.setImageResource(R.drawable.order_status_finish);
+			vHolder.text.setText("已完成");
+			if (list.get(position).get("isComment").equals("1")){ // 已评价
+				vHolder.todo.setVisibility(View.VISIBLE);
+				vHolder.todo.setText("已评");
+				state = "list";
+			}else{
+				vHolder.todo.setVisibility(View.VISIBLE);
+				vHolder.todo.setText("评价");
+				state = "comment";
+			}
+		}else{
+			vHolder.pic.setImageResource(R.drawable.order_status_leaving_grey);
+			vHolder.text.setText("待出发");
+			vHolder.todo.setVisibility(View.VISIBLE);
+			vHolder.todo.setText("催单");
+			state = "urge";
+		}
+
+		vHolder.head.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(context, GetOtherInfoActivity.class);
+				intent.putExtra("otherUserId", list.get(position).get("userid"));
+				intent.putExtra("need", "1");
+				intent.putExtra("orderState", "3");
+				context.startActivity(intent);
+			}
+		});
+
+		vHolder.todo.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				if (state.equals("comment")){
+					Intent intent = new Intent(context, CommentActivity.class);
+					intent.putExtra("oid", list.get(position).get("id"));
+					intent.putExtra("type", type);
+					intent.putExtra("userid", list.get(position).get("userid"));
+					((OrderListDetailActivity) context).startActivityForResult(
+							intent, 1098);
+				}else if (state.equals("done")){
+					Message msg = handler.obtainMessage();
+					msg.what = 100;
+					msg.obj = list.get(position).get("userid");
+					msg.sendToTarget();
+				}else if (state.equals("list")){
+					Intent intent = new Intent(context,
+							CommentListActivity.class);
+					intent.putExtra("list", cList);
+					context.startActivity(intent);
+				}else if (state.equals("urge")){
+					urgeHttp(list.get(position).get("userid"), oid, type);
+					v.setClickable(false);
+				}
+			}
+		});
+
+		convertView.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v){
+				// TODO Auto-generated method stub
+				if (os.equals("4")){
+					Intent intent = new Intent(context,
+							CommentListActivity.class);
+					intent.putExtra("list", cList);
+					context.startActivity(intent);
+				}
+			}
+		});
+
+		if(list.get(position).get("userlat").equals("") || list.get(position).get("userlng").equals("") || online.equals("0")){
+			vHolder.trace.setVisibility(View.GONE);
+		}else{
+			if(os.equals("3")){
+				final double lat = Double.valueOf(list.get(position).get("userlat"));
+				final double lng = Double.valueOf(list.get(position).get("userlng"));
+				vHolder.trace.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v){
+						// TODO Auto-generated method stub
+						Intent intent = new Intent(context, BaiDuMapTraceActivity.class);
+						intent.putExtra("lat", lat);
+						intent.putExtra("lng", lng);
+						intent.putExtra("name", list.get(position).get("username"));
+						intent.putExtra("entityName", list.get(position).get("entityName"));
+						intent.putExtra("myLat", list.get(position).get("userlat"));
+						intent.putExtra("myLng", list.get(position).get("userlng"));
+						intent.putExtra("userState", list.get(position).get("userState"));
+						context.startActivity(intent);
+					}
+				});
+			}else{
+				vHolder.trace.setVisibility(View.GONE);
+			}
+		}
+		// if(convertView == null){
+		// convertView =
+		// lInflater.inflate(R.layout.pay_success_employee_select_gv_item,
+		// null);
+		// }
+		// ViewHolder vHolder = new ViewHolder();
+		// vHolder.head = (RoundImageView)
+		// convertView.findViewById(R.id.pay_success_employee_head);
+		// vHolder.name = (TextView)
+		// convertView.findViewById(R.id.pay_success_employee_name);
+		// vHolder.price = (TextView)
+		// convertView.findViewById(R.id.pay_success_employee_price);
+		// vHolder.pic = (ImageView)
+		// convertView.findViewById(R.id.pay_success_employee_pic);
+		// vHolder.text = (TextView)
+		// convertView.findViewById(R.id.pay_success_employee_text);
+		// vHolder.todo = (TextView)
+		// convertView.findViewById(R.id.pay_success_employee_todo);
+		//
+		// vHolder.name.setText(list.get(position).get("username"));
+		// ImageLoader.getInstance().displayImage(list.get(position).get("img"),
+		// vHolder.head);
+		// vHolder.price.setText(list.get(position).get("price"));
+		//
+		// System.out.println("userstate ---> " +
+		// list.get(position).get("userState"));
+		// System.out.println("isComment ---> " +
+		// list.get(position).get("isComment"));
+		//
+		// if(list.get(position).get("userState").equals("1")){ //已出发
+		// vHolder.pic.setImageResource(R.drawable.order_status_leaving);
+		// vHolder.text.setText("已出发");
+		// vHolder.todo.setVisibility(View.INVISIBLE);
+		// }else if(list.get(position).get("userState").equals("2")){ //在途中
+		// vHolder.pic.setImageResource(R.drawable.order_status_onroad);
+		// vHolder.text.setText("在途中");
+		// vHolder.todo.setVisibility(View.INVISIBLE);
+		// }else if(list.get(position).get("userState").equals("3")){ //已完成
+		// vHolder.pic.setImageResource(R.drawable.order_status_finish);
+		// vHolder.text.setText("已完成");
+		// if(list.get(position).get("isComment").equals("1")){ //1已经评论，2没评论
+		// vHolder.todo.setVisibility(View.VISIBLE);
+		// vHolder.todo.setText("已评");
+		// state = "already";
+		// }else{
+		// vHolder.todo.setVisibility(View.VISIBLE);
+		// vHolder.todo.setText("评价");
+		// state = "comment";
+		// }
+		// }else{
+		// vHolder.pic.setImageResource(R.drawable.order_status_leaving_grey);
+		// vHolder.text.setText("未开始");
+		// vHolder.todo.setVisibility(View.INVISIBLE);
+		// }
+		//
+		//
+		//
+		// // if(os.equals("3")){ //进行中
+		// // if(list.get(position).get("userState").equals("3")){
+		// // vHolder.todo.setVisibility(View.INVISIBLE);
+		// // }else{
+		// // vHolder.todo.setVisibility(View.VISIBLE);
+		// // vHolder.todo.setText("催单");
+		// // state = "urge";
+		// // }
+		// // }
+		//
+		// vHolder.todo.setOnClickListener(new OnClickListener(){
+		//
+		// @Override
+		// public void onClick(View v){
+		// // TODO Auto-generated method stub
+		// if(state.equals("comment")){
+		// Intent intent = new Intent(context, CommentActivity.class);
+		// intent.putExtra("oid", oid);
+		// intent.putExtra("type", type);
+		// context.startActivity(intent);
+		// }else if(state.equals("already")){
+		// Intent intent = new Intent(context, CommentListActivity.class);
+		// intent.putExtra("list", cList);
+		// context.startActivity(intent);
+		// }
+		// }
+		// });
+		return convertView;
+	}
+
+	private void urgeHttp(String uid, String oid, String type){
+		final CustomProgressDialog pd = CustomProgressDialog
+				.createDialog(context);
+		JSONObject job = new JSONObject();
+
+		try{
+			job.put("userid", uid);
+			job.put("id", oid);
+			job.put("type", type);
+
+			StringEntity se = new StringEntity(job.toString());
+			HttpClient.post(context, Config.REMINDER_URL, se,
+					new AsyncHttpResponseHandler(){
+
+						@Override
+						public void onFailure(int arg0,
+								org.apache.http.Header[] arg1, byte[] arg2,
+								Throwable arg3){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							// 网络断开时进行相关操作
+							Toast.makeText(context, "网络连接失败，请检测网络！",
+									Toast.LENGTH_SHORT).show();
+						}
+
+						@Override
+						public void onSuccess(int arg0,
+								org.apache.http.Header[] arg1, byte[] arg2){
+							// TODO Auto-generated method stub
+							pd.dismiss();
+							if (arg0 == 200){
+								String str = new String(arg2);
+								System.out.println("催单接口返回  ---> " + str);
+								String message = "";
+								try{
+									JSONObject job = new JSONObject(str);
+									String state = job.getString("state");
+									message = job.getString("msg");
+									if (state.equals("success")){
+										JSONObject data = job
+												.getJSONObject("data");
+										String result = data
+												.getString("result");
+										if (result.equals("1")){
+											Toast.makeText(context, "催单成功!",
+													Toast.LENGTH_SHORT).show();
+										}else{
+											Toast.makeText(context, message,
+													Toast.LENGTH_SHORT).show();
+										}
+									}else{
+										Toast.makeText(context, message,
+												Toast.LENGTH_SHORT).show();
+									}
+								}catch(JSONException e){
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+
+						}
+					});
+		}catch(JSONException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}catch(UnsupportedEncodingException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			pd.dismiss();
+		}
+	}
+
+	class ViewHolder{
+		RoundImageView head;
+		TextView name;
+		TextView price;
+		ImageView pic;
+		TextView text;
+		TextView todo;
+		LinearLayout trace;
+	}
+
+}

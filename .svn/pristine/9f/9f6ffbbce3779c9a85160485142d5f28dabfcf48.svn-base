@@ -1,0 +1,69 @@
+/**
+ * 
+ *@param
+ */
+package getui;
+
+import android.app.Service;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.IBinder;
+
+/**
+ * 
+ *@param
+ */
+public class PushService extends Service{
+
+	private PushReceiver pr;
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public void onCreate(){
+		// TODO Auto-generated method stub
+		super.onCreate();
+	}
+	
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	@Deprecated
+	public void onStart(Intent intent, int startId){
+		// TODO Auto-generated method stub
+		IntentFilter filter = new IntentFilter();
+		super.onStart(intent, startId);
+	}	
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId){
+		// TODO Auto-generated method stub
+		return Service.START_REDELIVER_INTENT;
+	}
+	
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public void onDestroy(){
+		// TODO Auto-generated method stub
+		super.onDestroy();
+	}
+	/**
+	 * 
+	 *@param
+	 */
+	@Override
+	public IBinder onBind(Intent intent){
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,64 @@
+/**
+ * 
+ * @param
+ */
+package fragment;
+
+import com.youge.jobfinder.R;
+
+import android.app.Fragment;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+/**
+ * 
+ * @param
+ */
+public class NearbyShopDetailFragmentMiddle extends Fragment{
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(R.layout.nearby_shop_detail_fragment_middle,
+				null);
+
+		return view;
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onResume(){
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	/**
+	 * 
+	 * @param
+	 */
+	@Override
+	public void onPause(){
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+}

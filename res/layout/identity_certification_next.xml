@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f5" >
+    
+
+    
+	
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_below="@id/title"
+	    >
+	    
+	    <ImageView 
+	        android:layout_width="120dp"
+	        android:layout_height="120dp"
+	        android:src="@drawable/identification_done"
+	        android:layout_gravity="center_horizontal"
+	        android:layout_marginTop="20dp"
+	        />
+	    
+	    <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="您已通过实名认证,可继续完善证件审核"
+	        android:textSize="14sp"
+	        android:layout_gravity="center_horizontal"
+	        android:textColor="#666666"
+	        android:layout_marginTop="20dp"
+	        />
+	    
+	    <LinearLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="#ffffff"
+	        android:orientation="vertical"
+	        android:layout_marginTop="15dp"
+	        >
+	        <LinearLayout 
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal"
+	            android:weightSum="2"
+	            >
+	            <TextView 
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="真实姓名"
+	                android:textSize="13sp"
+	                android:textColor="#101119"
+	                android:paddingLeft="15dp"
+	            android:paddingTop="10dp"
+	            android:paddingBottom="5dp"
+	                />
+	            <EditText 
+	                android:id="@+id/identification_done_name"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:background="@null"
+	                android:hint="姓名"
+	                android:paddingRight="15dp"
+	                android:gravity="right"
+	                android:textSize="13sp"
+	            android:paddingTop="10dp"
+	            android:paddingBottom="5dp"
+	            android:editable="false"
+	                />
+	        </LinearLayout>
+	        
+	        <LinearLayout 
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal"
+	            android:weightSum="2"
+	            >
+	            <TextView 
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="身份证号"
+	                android:textSize="13sp"
+	                android:textColor="#101119"
+	                android:paddingLeft="15dp"
+	            android:paddingTop="10dp"
+	            android:paddingBottom="5dp"
+	                />
+
+	            <EditText
+	                android:id="@+id/identification_done_idno"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:background="@null"
+	                android:gravity="right"
+	                android:hint="2****************0"
+	                android:paddingBottom="5dp"
+	                android:paddingRight="15dp"
+	                android:paddingTop="10dp"
+	                android:textSize="13sp" 
+	                android:editable="false"/>
+
+	        </LinearLayout>
+	        
+	    </LinearLayout>
+	    
+	    
+	        
+	        <LinearLayout 
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal"
+	            android:weightSum="2"
+	            android:layout_marginTop="10dp"
+	            android:background="#ffffff"
+	            >
+	            <TextView 
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="证件审核"
+	                android:textSize="13sp"
+	                android:textColor="#101119"
+	                android:paddingLeft="15dp"
+	            android:paddingTop="10dp"
+	            android:paddingBottom="10dp"
+	                />
+	            
+	            <FrameLayout 
+	                android:id="@+id/identification_done_next"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:paddingBottom="10dp"
+	                android:paddingRight="15dp"
+	                android:paddingTop="10dp"
+	                >
+	                
+	                <ImageView 
+	                    android:layout_width="15dp"
+	                    android:layout_height="15dp"
+	                    android:src="@drawable/right_arrow"
+	                    android:layout_gravity="center_vertical|right"
+	                    />
+	                
+	                <TextView 
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:text="继续完善"
+	                    android:textSize="13sp"
+	                    android:textColor="#818181"
+	                    android:layout_gravity="center_vertical|right"
+	                    android:layout_marginRight="20dp"
+	                    />
+	            </FrameLayout>
+
+	        </LinearLayout>
+	    
+	</LinearLayout>
+
+	
+
+</RelativeLayout>
